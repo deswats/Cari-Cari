@@ -21,6 +21,19 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   :root {
+    --bg: #f0f2f5;
+    --card: #ffffff;
+    --card-border: #e4e6eb;
+    --text: #1c1e21;
+    --text-sub: #65676b;
+    --input-bg: #f0f2f5;
+    --input-border: #ccd0d5;
+    --accent: #1877f2;
+    --accent-text: #ffffff;
+    --media-bg: #e4e6eb;
+    --media-text: #888;
+  }
+  body.dark {
     --bg: #0d0d0d;
     --card: #161616;
     --card-border: #262626;
@@ -829,6 +842,346 @@
 </head>
 <body>
 
+<!-- AUTH SCREENS -->
+<div id="authContainer" style="
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.6) 100%), url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 800%22><defs><linearGradient id=%22g1%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22><stop offset=%220%25%22 style=%22stop-color:%23FF6B35;stop-opacity:1%22/><stop offset=%22100%25%22 style=%22stop-color:%23FF8C42;stop-opacity:1%22/></linearGradient></defs><rect width=%221200%22 height=%22800%22 fill=%22%23DAA520%22/><rect x=%2220%22 y=%2250%22 width=%22250%22 height=%22300%22 fill=%22url(%23g1)%22 rx=%2210%22/><rect x=%2240%22 y=%2270%22 width=%2220%22 height=%22150%22 fill=%22%23654321%22/><rect x=%2280%22 y=%2270%22 width=%2220%22 height=%22150%22 fill=%22%23654321%22/><rect x=%22120%22 y=%2270%22 width=%2220%22 height=%22150%22 fill=%22%23654321%22/><rect x=%22160%22 y=%2270%22 width=%2220%22 height=%22150%22 fill=%22%23654321%22/><circle cx=%22130%22 cy=%2230%22 r=%2220%22 fill=%22%23FF4500%22/><rect x=%22310%22 y=%2280%22 width=%22200%22 height=%22220%22 fill=%22%238B7355%22 rx=%228%22/><circle cx=%22340%22 cy=%2250%22 r=%2225%22 fill=%22%23DC143C%22/><circle cx=%22410%22 cy=%2250%22 r=%2225%22 fill=%22%23FF6347%22/><circle cx=%22480%22 cy=%2250%22 r=%2225%22 fill=%22%23FF8C00%22/><rect x=%22280%22 y=%22320%22 width=%2230%22 height=%22100%22 fill=%22%23228B22%22/><rect x=%22330%22 y=%22320%22 width=%2230%22 height=%22100%22 fill=%22%238FBC8F%22/><rect x=%22380%22 y=%22320%22 width=%2230%22 height=%22100%22 fill=%22%2332CD32%22/><rect x=%22580%22 y=%22100%22 width=%22220%22 height=%22200%22 fill=%22%23D3D3D3%22 rx=%226%22/><rect x=%22605%22 y=%22120%22 width=%2225%22 height=%22100%22 fill=%22%23696969%22/><rect x=%22660%22 y=%22120%22 width=%2225%22 height=%22100%22 fill=%22%23696969%22/><rect x=%22715%22 y=%22120%22 width=%2225%22 height=%22100%22 fill=%22%23696969%22/><circle cx=%22640%22 cy=%2270%22 r=%2220%22 fill=%22%23FFD700%22/><circle cx=%22695%22 cy=%2270%22 r=%2220%22 fill=%22%238B4513%22/><rect x=%2250%22 y=%22500%22 width=%22240%22 height=%22200%22 fill=%22%23CD853F%22 rx=%228%22/><circle cx=%22100%22 cy=%22480%22 r=%2235%22 fill=%22%23228B22%22/><circle cx=%22140%22 cy=%22480%22 r=%2235%22 fill=%22%23FF6347%22/><circle cx=%22180%22 cy=%22480%22 r=%2235%22 fill=%22%23FFD700%22/><rect x=%22320%22 y=%22520%22 width=%2230%22 height=%22120%22 fill=%22%23654321%22/><rect x=%22370%22 y=%22520%22 width=%2230%22 height=%22120%22 fill=%22%23654321%22/><rect x=%22420%22 y=%22520%22 width=%2230%22 height=%22120%22 fill=%22%23654321%22/><rect x=%22550%22 y=%22420%22 width=%22180%22 height=%22200%22 fill=%22%238B6F47%22 rx=%228%22/><rect x=%22570%22 y=%22440%22 width=%2220%22 height=%22100%22 fill=%22%23654321%22/><rect x=%22610%22 y=%22440%22 width=%2220%22 height=%22100%22 fill=%22%23654321%22/><rect x=%22650%22 y=%22440%22 width=%2220%22 height=%22100%22 fill=%22%23654321%22/><circle cx=%22610%22 cy=%22390%22 r=%2225%22 fill=%22%23FF6347%22/><rect x=%22800%22 y=%2250%22 width=%22200%22 height=%22250%22 fill=%22%235F9EA0%22 rx=%226%22/><circle cx=%22850%22 cy=%22200%22 r=%2240%22 fill=%22%23FFD700%22/><rect x=%22820%22 y=%22320%22 width=%2230%22 height=%22120%22 fill=%22%23696969%22/><rect x=%22880%22 y=%22320%22 width=%2230%22 height=%22120%22 fill=%22%23696969%22/><ellipse cx=%22950%22 cy=%22200%22 rx=%2245%22 ry=%2235%22 fill=%22%23228B22%22/><path d=%22M 900 300 L 920 250 L 940 300 Z%22 fill=%22%238B4513%22/></svg>');
+  background-size: cover;
+  background-position: center;
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 16px;
+">
+  
+  <!-- SPLASH SCREEN (with language selector) -->
+  <div id="splashScreen" style="
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    text-align: center;
+  ">
+    <div style="
+      background: rgba(255, 255, 255, 0.98);
+      border-radius: 20px;
+      padding: 40px 24px;
+      max-width: 340px;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+      border: 1px solid rgba(24, 119, 242, 0.15);
+      backdrop-filter: blur(10px);
+    ">
+      <div style="font-size: 3rem; margin-bottom: 16px;">🏪</div>
+      <h1 style="font-size: 1.8rem; margin-bottom: 8px; color: var(--accent);">Cari-Cari</h1>
+      <p id="splashSubtitle" style="color: var(--text-sub); margin-bottom: 8px; font-size: 0.95rem;">Hyperlocal Marketplace for Sabah</p>
+      
+      <!-- Language selector on splash -->
+      <div style="
+        background: var(--input-bg);
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        padding: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        gap: 6px;
+      ">
+        <button onclick="setLanguage('eng')" id="langBtnEng" style="
+          flex: 1;
+          padding: 8px;
+          background: var(--accent);
+          color: var(--accent-text);
+          border: none;
+          border-radius: 6px;
+          font-weight: 600;
+          font-size: 0.85rem;
+          cursor: pointer;
+        ">🇬🇧 ENG</button>
+        <button onclick="setLanguage('bm')" id="langBtnBm" style="
+          flex: 1;
+          padding: 8px;
+          background: transparent;
+          color: var(--text);
+          border: 1px solid var(--input-border);
+          border-radius: 6px;
+          font-weight: 600;
+          font-size: 0.85rem;
+          cursor: pointer;
+        ">🇲🇾 BM</button>
+      </div>
+      
+      <button onclick="showSignIn()" style="
+        width: 100%;
+        padding: 14px;
+        background: var(--accent);
+        color: var(--accent-text);
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        margin-bottom: 10px;
+      " id="splashSignInBtn">Sign In</button>
+      
+      <button onclick="showRegister()" style="
+        width: 100%;
+        padding: 14px;
+        background: var(--input-bg);
+        color: var(--text);
+        border: 1px solid var(--input-border);
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+      " id="splashCreateBtn">Create Account</button>
+    </div>
+  </div>
+
+  <!-- REGISTER SCREEN -->
+  <div id="registerScreen" style="display: none;">
+    <div style="max-width: 400px; margin: 40px auto;">
+      <button onclick="showSplash()" style="
+        background: none;
+        border: none;
+        color: var(--accent);
+        font-size: 1rem;
+        cursor: pointer;
+        margin-bottom: 20px;
+      ">← Back</button>
+
+      <h1 style="font-size: 1.8rem; margin-bottom: 8px;">Create Account</h1>
+      <p style="color: var(--text-sub); margin-bottom: 24px;">Join Cari-Cari and start selling locally</p>
+
+      <input type="text" id="regName" placeholder="Full Name" style="
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text);
+        font-size: 16px;
+        margin-bottom: 12px;
+      ">
+
+      <input type="email" id="regEmail" placeholder="Email Address" style="
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text);
+        font-size: 16px;
+        margin-bottom: 12px;
+      ">
+
+      <input type="tel" id="regPhone" placeholder="Phone Number (e.g., +6019234567)" style="
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text);
+        font-size: 16px;
+        margin-bottom: 12px;
+      ">
+
+      <input type="password" id="regPassword" placeholder="Password (min 8 characters)" style="
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text);
+        font-size: 16px;
+        margin-bottom: 12px;
+      ">
+
+      <label style="display: flex; align-items: center; margin-bottom: 16px; gap: 8px; cursor: pointer;">
+        <input type="checkbox" id="agreeTerms" style="width: 18px; height: 18px; cursor: pointer;">
+        <span style="font-size: 0.85rem;">I agree to the <a onclick="showPDPA()" style="color: var(--accent); text-decoration: none; cursor: pointer; font-weight: 600;">PDPA Policy</a> and Terms</span>
+      </label>
+
+      <button onclick="completeRegister()" style="
+        width: 100%;
+        padding: 14px;
+        background: var(--accent);
+        color: var(--accent-text);
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        margin-bottom: 12px;
+      ">Create Account</button>
+
+      <p style="text-align: center; color: var(--text-sub); font-size: 0.9rem;">
+        Already have an account? <a onclick="showSignIn()" style="color: var(--accent); text-decoration: none; cursor: pointer; font-weight: 600;">Sign in</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- SIGN IN SCREEN -->
+  <div id="signInScreen" style="display: none;">
+    <div style="max-width: 400px; margin: 40px auto;">
+      <button onclick="showSplash()" style="
+        background: none;
+        border: none;
+        color: var(--accent);
+        font-size: 1rem;
+        cursor: pointer;
+        margin-bottom: 20px;
+      ">← Back</button>
+
+      <h1 style="font-size: 1.8rem; margin-bottom: 8px;">Welcome Back</h1>
+      <p style="color: var(--text-sub); margin-bottom: 24px;">Sign in to access Cari-Cari</p>
+
+      <input type="email" id="signinEmail" placeholder="Email Address" style="
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text);
+        font-size: 16px;
+        margin-bottom: 12px;
+      ">
+
+      <input type="password" id="signinPassword" placeholder="Password" style="
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text);
+        font-size: 16px;
+        margin-bottom: 16px;
+      ">
+
+      <button onclick="completeSignIn()" style="
+        width: 100%;
+        padding: 14px;
+        background: var(--accent);
+        color: var(--accent-text);
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        margin-bottom: 12px;
+      ">Sign In</button>
+
+      <p style="text-align: center; color: var(--text-sub); font-size: 0.85rem; margin-bottom: 12px;">
+        <a onclick="showForgotPassword()" style="color: var(--accent); text-decoration: none; cursor: pointer;">Forgot password?</a>
+      </p>
+
+      <p style="text-align: center; color: var(--text-sub); font-size: 0.9rem;">
+        Don't have an account? <a onclick="showRegister()" style="color: var(--accent); text-decoration: none; cursor: pointer; font-weight: 600;">Create one</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- PDPA POLICY SCREEN -->
+  <div id="pdpaScreen" style="display: none;">
+    <div style="max-width: 600px; margin: 20px auto;">
+      <button onclick="closePDPA()" style="
+        background: none;
+        border: none;
+        color: var(--accent);
+        font-size: 1rem;
+        cursor: pointer;
+        margin-bottom: 20px;
+      ">← Back</button>
+
+      <h1 style="font-size: 1.8rem; margin-bottom: 16px;">Personal Data Protection Policy</h1>
+
+      <div style="background: var(--card); padding: 16px; border-radius: 10px; border: 1px solid var(--card-border); line-height: 1.6;">
+        
+        <h2 style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; color: var(--accent);">1. Introduction</h2>
+        <p>Cari-Cari respects your privacy and is committed to protecting your personal data. This PDPA (Personal Data Protection Act) policy explains how we collect, use, and safeguard your information.</p>
+
+        <h2 style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; color: var(--accent);">2. Data We Collect</h2>
+        <p>We collect the following personal data:</p>
+        <ul style="margin-left: 20px; margin-bottom: 12px;">
+          <li>Full Name</li>
+          <li>Email Address</li>
+          <li>Phone Number</li>
+          <li>Business Information (if seller)</li>
+          <li>Location Data (GPS, with permission)</li>
+          <li>Transaction History</li>
+          <li>Device Information</li>
+          <li>Usage Analytics</li>
+        </ul>
+
+        <h2 style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; color: var(--accent);">3. How We Use Your Data</h2>
+        <p>Your data is used for:</p>
+        <ul style="margin-left: 20px; margin-bottom: 12px;">
+          <li>Account creation and authentication</li>
+          <li>Providing marketplace services</li>
+          <li>Payment processing</li>
+          <li>Communication and support</li>
+          <li>Improving our services</li>
+          <li>Legal compliance</li>
+          <li>Preventing fraud and abuse</li>
+        </ul>
+
+        <h2 style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; color: var(--accent);">4. Data Security</h2>
+        <p>We implement industry-standard security measures to protect your data:</p>
+        <ul style="margin-left: 20px; margin-bottom: 12px;">
+          <li>HTTPS encryption for all connections</li>
+          <li>Secure password hashing</li>
+          <li>Limited access to personal data</li>
+          <li>Regular security audits</li>
+          <li>Compliance with PDPA regulations</li>
+        </ul>
+
+        <h2 style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; color: var(--accent);">5. Your Rights</h2>
+        <p>Under PDPA, you have the right to:</p>
+        <ul style="margin-left: 20px; margin-bottom: 12px;">
+          <li>Access your personal data</li>
+          <li>Request corrections to your data</li>
+          <li>Request deletion of your data</li>
+          <li>Withdraw consent at any time</li>
+          <li>Obtain information about data usage</li>
+        </ul>
+
+        <h2 style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; color: var(--accent);">6. Data Retention</h2>
+        <p>We retain your personal data for as long as necessary to provide our services. You can request deletion anytime by contacting us.</p>
+
+        <h2 style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; color: var(--accent);">7. Third-Party Services</h2>
+        <p>We may share data with trusted partners (Supabase, Flexi Payment, Toyyibpay) only for service delivery. These partners are contractually bound to protect your data.</p>
+
+        <h2 style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; color: var(--accent);">8. Contact Us</h2>
+        <p>For PDPA inquiries or to exercise your rights, contact:</p>
+        <ul style="margin-left: 20px; margin-bottom: 12px;">
+          <li>Email: privacy@cari-cari.com.my</li>
+          <li>Phone: +60-82-XXXXXX</li>
+          <li>Address: Kota Kinabalu, Sabah, Malaysia</li>
+        </ul>
+
+        <p style="margin-top: 20px; color: var(--text-sub); font-size: 0.85rem;">Last updated: July 2024</p>
+      </div>
+
+      <button onclick="closePDPA()" style="
+        width: 100%;
+        padding: 12px;
+        background: var(--accent);
+        color: var(--accent-text);
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        margin-top: 16px;
+        cursor: pointer;
+      ">I Understand</button>
+    </div>
+  </div>
+
+</div>
+
 <div id="app">
 
   <!-- HEADER: Search + Integrations + Earnings + Parking + Language -->
@@ -856,9 +1209,77 @@
     <div class="icon-btn" id="language-toggle" title="Toggle language">
       <span id="lang-display">ENG</span>
     </div>
-    <div class="icon-btn">
+    <div class="icon-btn" title="Notifications">
       🔔
       <div class="notif-dot"></div>
+    </div>
+    <div class="icon-btn" id="userMenuBtn" title="User Menu">
+      👤
+    </div>
+  </div>
+
+  <!-- USER MENU DROPDOWN -->
+  <div id="userMenu" style="
+    display: none;
+    position: fixed;
+    top: 60px;
+    right: 16px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 12px 0;
+    z-index: 100;
+    min-width: 200px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  ">
+    <div style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">
+      <div style="font-weight: 600;" id="userMenuName">User</div>
+      <div style="font-size: 0.85rem; color: var(--text-sub);" id="userMenuEmail">email@example.com</div>
+    </div>
+    <div style="padding: 8px 0;">
+      <button onclick="toggleUserMenu()" style="
+        width: 100%;
+        padding: 10px 16px;
+        background: none;
+        border: none;
+        text-align: left;
+        color: var(--text);
+        cursor: pointer;
+        font-size: 0.95rem;
+      ">👤 My Profile</button>
+      <button onclick="toggleUserMenu()" style="
+        width: 100%;
+        padding: 10px 16px;
+        background: none;
+        border: none;
+        text-align: left;
+        color: var(--text);
+        cursor: pointer;
+        font-size: 0.95rem;
+      ">⚙️ Settings</button>
+      <button onclick="toggleUserMenu()" style="
+        width: 100%;
+        padding: 10px 16px;
+        background: none;
+        border: none;
+        text-align: left;
+        color: var(--text);
+        cursor: pointer;
+        font-size: 0.95rem;
+      ">❓ Help & Support</button>
+      <div style="border-top: 1px solid var(--card-border); margin-top: 8px; padding-top: 8px;">
+        <button onclick="logout()" style="
+          width: 100%;
+          padding: 10px 16px;
+          background: none;
+          border: none;
+          text-align: left;
+          color: #ff4444;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 0.95rem;
+        ">🚪 Logout</button>
+      </div>
     </div>
   </div>
 
@@ -1585,6 +2006,226 @@
 <button class="theme-toggle">🌙</button>
 
 <script>
+  // ===== AUTHENTICATION SYSTEM =====
+  let isLoggedIn = localStorage.getItem('cariCariUser') ? true : false;
+  let currentUser = JSON.parse(localStorage.getItem('cariCariUser') || '{}');
+  let appLanguage = localStorage.getItem('cariCariLanguage') || '';
+
+  // LANGUAGE SELECTION
+  function selectLanguage(lang) {
+    appLanguage = lang;
+    localStorage.setItem('cariCariLanguage', lang);
+    currentLanguage = lang;
+    updateLanguageDisplay();
+    showSplash();
+  }
+
+  function setLanguage(lang) {
+    appLanguage = lang;
+    localStorage.setItem('cariCariLanguage', lang);
+    currentLanguage = lang;
+    updateLanguageDisplay();
+    updateLanguageButtons();
+    updateLanguage();
+  }
+
+  function updateLanguageButtons() {
+    const engBtn = document.getElementById('langBtnEng');
+    const bmBtn = document.getElementById('langBtnBm');
+    if (appLanguage === 'bm') {
+      engBtn.style.background = 'transparent';
+      engBtn.style.color = 'var(--text)';
+      engBtn.style.border = '1px solid var(--input-border)';
+      bmBtn.style.background = 'var(--accent)';
+      bmBtn.style.color = 'var(--accent-text)';
+      bmBtn.style.border = 'none';
+    } else {
+      engBtn.style.background = 'var(--accent)';
+      engBtn.style.color = 'var(--accent-text)';
+      engBtn.style.border = 'none';
+      bmBtn.style.background = 'transparent';
+      bmBtn.style.color = 'var(--text)';
+      bmBtn.style.border = '1px solid var(--input-border)';
+    }
+  }
+
+  function showLanguageScreen() {
+    // Removed - language selection is now on splash screen
+  }
+
+  function updateLanguageDisplay() {
+    if (appLanguage === 'bm') {
+      document.getElementById('splashSubtitle').textContent = 'Pasaran Hyperlocal untuk Sabah';
+      document.getElementById('langDisplay').textContent = 'BM';
+    } else {
+      document.getElementById('splashSubtitle').textContent = 'Hyperlocal Marketplace for Sabah';
+      document.getElementById('langDisplay').textContent = 'ENG';
+    }
+  }
+
+  function showSplash() {
+    document.getElementById('languageScreen').style.display = 'none';
+    document.getElementById('splashScreen').style.display = 'flex';
+    document.getElementById('registerScreen').style.display = 'none';
+    document.getElementById('signInScreen').style.display = 'none';
+    document.getElementById('pdpaScreen').style.display = 'none';
+    updateLanguageDisplay();
+  }
+
+  function showRegister() {
+    document.getElementById('splashScreen').style.display = 'none';
+    document.getElementById('registerScreen').style.display = 'block';
+  }
+
+  function showSignIn() {
+    document.getElementById('splashScreen').style.display = 'none';
+    document.getElementById('signInScreen').style.display = 'block';
+  }
+
+  function showPDPA() {
+    document.getElementById('pdpaScreen').style.display = 'block';
+  }
+
+  function closePDPA() {
+    document.getElementById('pdpaScreen').style.display = 'none';
+  }
+
+  function showForgotPassword() {
+    showNotif('Password reset link sent to your email 📧');
+  }
+
+  function completeRegister() {
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const phone = document.getElementById('regPhone').value.trim();
+    const password = document.getElementById('regPassword').value.trim();
+    const agreed = document.getElementById('agreeTerms').checked;
+
+    if (!name) {
+      showNotif('Please enter your name');
+      return;
+    }
+    if (!email || !email.includes('@')) {
+      showNotif('Please enter a valid email');
+      return;
+    }
+    if (!phone) {
+      showNotif('Please enter your phone number');
+      return;
+    }
+    if (password.length < 8) {
+      showNotif('Password must be at least 8 characters');
+      return;
+    }
+    if (!agreed) {
+      showNotif('Please agree to PDPA Policy and Terms');
+      return;
+    }
+
+    // Save user
+    const userData = {
+      id: 'user-' + Date.now(),
+      name: name,
+      email: email,
+      phone: phone,
+      joinDate: new Date().toLocaleDateString(),
+      credits: 250,
+      membership: 'free'
+    };
+
+    localStorage.setItem('cariCariUser', JSON.stringify(userData));
+    isLoggedIn = true;
+    currentUser = userData;
+
+    showNotif('✅ Account created! Welcome to Cari-Cari! 🎉');
+    enterApp();
+  }
+
+  function completeSignIn() {
+    const email = document.getElementById('signinEmail').value.trim();
+    const password = document.getElementById('signinPassword').value.trim();
+
+    if (!email || !password) {
+      showNotif('Please enter email and password');
+      return;
+    }
+
+    // For demo: Accept any email/password
+    // In production: Verify with Supabase Auth
+    const userData = {
+      id: 'user-' + Date.now(),
+      name: email.split('@')[0],
+      email: email,
+      phone: '+6019234567',
+      joinDate: new Date().toLocaleDateString(),
+      credits: 250,
+      membership: 'free'
+    };
+
+    localStorage.setItem('cariCariUser', JSON.stringify(userData));
+    isLoggedIn = true;
+    currentUser = userData;
+
+    showNotif('✅ Welcome back! 👋');
+    enterApp();
+  }
+
+  function enterApp() {
+    document.getElementById('authContainer').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('creditsDisplay').textContent = '💾 ' + currentUser.credits + ' credits';
+  }
+
+  // Check if user is logged in
+  window.addEventListener('load', () => {
+    if (isLoggedIn) {
+      document.getElementById('authContainer').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+    } else {
+      document.getElementById('authContainer').style.display = 'block';
+      document.getElementById('splashScreen').style.display = 'flex';
+      updateLanguageDisplay();
+      updateLanguageButtons();
+    }
+  });
+
+  function logout() {
+    localStorage.removeItem('cariCariUser');
+    isLoggedIn = false;
+    currentUser = {};
+    showSplash();
+    showNotif('Logged out successfully');
+  }
+
+  // USER MENU
+  function toggleUserMenu() {
+    const menu = document.getElementById('userMenu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  }
+
+  document.getElementById('userMenuBtn').addEventListener('click', toggleUserMenu);
+
+  // Update user menu info
+  window.addEventListener('load', () => {
+    if (isLoggedIn && currentUser.name) {
+      document.getElementById('userMenuName').textContent = currentUser.name;
+      document.getElementById('userMenuEmail').textContent = currentUser.email;
+    }
+    // Initialize language display
+    if (langDisplay) {
+      langDisplay.textContent = currentLanguage === 'eng' ? 'ENG' : 'BM';
+    }
+  });
+
+  // Close menu when clicking outside
+  document.addEventListener('click', (e) => {
+    const menu = document.getElementById('userMenu');
+    const userBtn = document.getElementById('userMenuBtn');
+    if (!menu.contains(e.target) && !userBtn.contains(e.target)) {
+      menu.style.display = 'none';
+    }
+  });
+
   // ===== THEME TOGGLE =====
   const themeToggle = document.querySelector('.theme-toggle');
   themeToggle.addEventListener('click', () => {
@@ -1593,7 +2234,7 @@
   });
 
   // ===== LANGUAGE TOGGLE (ENG / MALAY) =====
-  let currentLanguage = 'eng'; // default to English
+  let currentLanguage = appLanguage || 'eng'; // Use selected language or default to English
   const languageToggle = document.getElementById('language-toggle');
   const langDisplay = document.getElementById('lang-display');
 
@@ -1641,6 +2282,8 @@
 
   languageToggle.addEventListener('click', () => {
     currentLanguage = currentLanguage === 'eng' ? 'ms' : 'eng';
+    appLanguage = currentLanguage;
+    localStorage.setItem('cariCariLanguage', currentLanguage);
     langDisplay.textContent = currentLanguage === 'eng' ? 'ENG' : 'BM';
     updateLanguage();
   });
