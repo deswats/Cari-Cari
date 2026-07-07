@@ -1,0 +1,4817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cari-Cari">
+<meta name="theme-color" content="#FFD400">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+<meta name="description" content="Cari-Cari - Hyperlocal Marketplace for Sabah, Malaysia. Buy, Sell & Advertise Locally">
+<meta name="keywords" content="marketplace, Sabah, local business, ads, parking payment">
+<meta name="author" content="DW Labs">
+<meta name="apple-itunes-app" content="app-id=0">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%23FFD400' width='180' height='180'/><text x='50%' y='50%' font-size='80' fill='%23000' text-anchor='middle' dominant-baseline='central'>CC</text></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23FFD400' width='192' height='192'/><text x='50%' y='50%' font-size='100' fill='%23000' text-anchor='middle' dominant-baseline='central'>CC</text></svg>">
+<title>Cari-Cari — Homepage</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #f0f2f5;
+    --card: #ffffff;
+    --card-border: #e4e6eb;
+    --text: #1c1e21;
+    --text-sub: #65676b;
+    --input-bg: #f0f2f5;
+    --input-border: #ccd0d5;
+    --accent: #1877f2;
+    --accent-text: #ffffff;
+    --media-bg: #e4e6eb;
+    --media-text: #888;
+  }
+  body.dark {
+    --bg: #0d0d0d;
+    --card: #161616;
+    --card-border: #262626;
+    --text: #eee;
+    --text-sub: #999;
+    --input-bg: #1e1e1e;
+    --input-border: #333;
+    --accent: #ffd400;
+    --accent-text: #111;
+    --media-bg: #202020;
+    --media-text: #555;
+  }
+  body.light {
+    --bg: #f0f2f5;
+    --card: #ffffff;
+    --card-border: #e4e6eb;
+    --text: #1c1e21;
+    --text-sub: #65676b;
+    --input-bg: #f0f2f5;
+    --input-border: #ccd0d5;
+    --accent: #1877f2;
+    --accent-text: #ffffff;
+    --media-bg: #e4e6eb;
+    --media-text: #888;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.2s, color 0.2s;
+  }
+  #app { max-width: 480px; margin: 0 auto; padding: 16px; }
+
+  /* HEADER: search + notifications */
+  .header-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .search-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 999px;
+    padding: 9px 14px;
+  }
+  .search-box input {
+    border: none;
+    background: transparent;
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    color: var(--text);
+  }
+  .search-box input::placeholder { color: var(--text-sub); }
+  .search-box input:focus { outline: none; }
+
+  /* CATEGORY DROPDOWN */
+  #categoryFilter {
+    padding: 8px 10px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  #categoryFilter:hover {
+    border-color: var(--accent);
+  }
+
+  #categoryFilter:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .icon-btn {
+    position: relative;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    font-size: 1.05rem;
+  }
+  .notif-dot {
+    position: absolute;
+    top: 6px; right: 7px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #e0455c;
+    border: 1.5px solid var(--bg);
+  }
+
+  /* STORIES BAR */
+  .stories-bar {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    margin-bottom: 16px;
+  }
+  .story {
+    flex-shrink: 0;
+    width: 62px;
+    text-align: center;
+  }
+  .story-ring {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #ff8a00);
+    padding: 2.5px;
+    margin: 0 auto 4px;
+  }
+  .story-ring.seen { background: var(--input-border); }
+  .story-avatar {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    background: var(--card);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+    color: var(--text);
+    font-weight: 600;
+    border: 2px solid var(--bg);
+  }
+  .story-name {
+    font-size: 0.65rem;
+    color: var(--text-sub);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .story.add-story .story-ring {
+    background: var(--input-border);
+    position: relative;
+  }
+  .story.add-story .story-avatar { font-size: 1.2rem; color: var(--accent); }
+
+  /* NEARBY FILTER PILLS */
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+  }
+  .filter-pill {
+    flex-shrink: 0;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-sub);
+    cursor: pointer;
+  }
+  .filter-pill.active {
+    background: var(--accent);
+    color: var(--accent-text);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  .distance-info {
+    font-size: 0.75rem;
+    color: var(--text-sub);
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    background: var(--input-bg);
+    border-left: 2px solid var(--accent);
+    border-radius: 4px;
+    text-align: center;
+  }
+
+  .banner {
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--media-text);
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* HOW IT WORKS */
+  .how-it-works {
+    background: linear-gradient(135deg, #1a1a12, #161616);
+    border: 1px solid #33301a;
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+    cursor: pointer;
+  }
+  .hiw-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .hiw-header h2 { font-size: 0.95rem; color: var(--accent); }
+  .hiw-chevron { color: #888; transition: transform 0.2s; font-size: 0.8rem; }
+  .hiw-chevron.open { transform: rotate(180deg); }
+  .hiw-body {
+    display: none;
+    margin-top: 12px;
+    font-size: 0.82rem;
+    color: #aaa;
+    line-height: 1.6;
+  }
+  .hiw-body.open { display: block; }
+  .hiw-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: flex-start; }
+  .hiw-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent); margin-top: 6px; flex-shrink: 0;
+  }
+
+  /* TOP BAR: credits + buy */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .credits-pill {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .buy-btn {
+    background: var(--accent);
+    color: var(--accent-text);
+    border: none;
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* COMPOSER */
+  .composer {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 20px;
+  }
+  .tabs {
+    display: flex;
+    background: var(--input-bg);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 14px;
+  }
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 9px;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-sub);
+  }
+  .tab.active { background: #2a2a2a; color: var(--accent); font-weight: 600; }
+  textarea, input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--input-border);
+    border-radius: 10px;
+    background: var(--input-bg);
+    color: var(--text);
+    font-family: inherit;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+  textarea { min-height: 80px; resize: none; }
+  textarea:focus, input:focus { outline: none; border-color: var(--accent); }
+
+  .location-box {
+    background: var(--input-bg);
+    border: 1px dashed var(--input-border);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 0.85rem;
+    color: var(--text-sub);
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+  }
+  .location-box.set {
+    color: var(--accent);
+    border-style: solid;
+  }
+  .location-box:hover { opacity: 0.8; }
+
+  #map-modal, #boost-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    align-items: flex-end;
+  }
+  #map-modal.open, #boost-modal-overlay.open {
+    display: flex;
+  }
+  .modal-content {
+    background: var(--card);
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  #map-container { width: 100%; height: 500px; border-radius: 12px; margin-bottom: 16px; }
+
+  .post-cost-note {
+    font-size: 0.75rem;
+    color: var(--text-sub);
+    margin-bottom: 10px;
+  }
+  .sales-warning {
+    display: none;
+    background: #3a2a2a;
+    border: 1px solid #8a3a3a;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    font-size: 0.8rem;
+    color: #e0a0a0;
+  }
+  .sales-warning.show { display: block; }
+
+  .post-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    color: var(--accent-text);
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  .post-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* BOOST TIERS */
+  .composer-boost-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: var(--input-bg);
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  .composer-boost-switch {
+    width: 32px; height: 18px;
+    border-radius: 999px;
+    background: #333;
+    position: relative;
+    transition: background 0.2s;
+  }
+  .composer-boost-switch.on {
+    background: var(--accent);
+  }
+  .composer-boost-switch::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--bg);
+    transition: left 0.2s;
+  }
+  .composer-boost-switch.on::after {
+    left: 16px;
+  }
+
+  .composer-boost-tiers {
+    display: none;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .composer-boost-tiers.open {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .composer-boost-tier {
+    flex: 1; min-width: 100px;
+    padding: 10px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    font-size: 0.75rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .composer-boost-tier.selected {
+    background: var(--accent);
+    color: var(--accent-text);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* CATEGORY SELECTOR */
+  .category-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 10px;
+    background: var(--input-bg);
+    border: 1.5px solid var(--input-border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.8rem;
+    color: var(--text-sub);
+  }
+  .category-btn:hover {
+    border-color: var(--accent);
+  }
+  .category-btn.selected {
+    background: var(--accent);
+    color: var(--accent-text);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* BOOSTED CAROUSEL */
+  .boosted-carousel-section {
+    margin-bottom: 24px;
+  }
+  .carousel-header {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-sub);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .carousel-header::before {
+    content: '🚀';
+    font-size: 0.95rem;
+  }
+  .boosted-carousel {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scroll-behavior: smooth;
+  }
+  .carousel-card {
+    flex-shrink: 0;
+    width: 280px;
+    background: var(--card);
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 0 16px rgba(255, 212, 0, 0.15);
+  }
+  .carousel-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .carousel-card-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+  .carousel-card-tier {
+    font-size: 0.65rem;
+    font-weight: 600;
+    background: var(--accent);
+    color: var(--accent-text);
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .carousel-card-price {
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+  }
+  .carousel-card-desc {
+    font-size: 0.8rem;
+    color: var(--text-sub);
+    line-height: 1.4;
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .carousel-card-location {
+    font-size: 0.75rem;
+    color: var(--text-sub);
+    margin-bottom: 10px;
+  }
+  .carousel-card-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .carousel-card-action {
+    flex: 1;
+    padding: 7px 10px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    font-size: 0.7rem;
+    color: var(--text-sub);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .carousel-card-action:hover {
+    background: var(--input-border);
+  }
+
+  /* FEED */
+  #feed-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .feed-item {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 16px;
+    transition: all 0.2s;
+  }
+  .feed-item.just-posted {
+    animation: slideDown 0.3s ease-out;
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .feed-item.is-boosted {
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(255, 212, 0, 0.15);
+  }
+
+  .feed-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--input-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+  .feed-user { font-weight: 600; font-size: 0.9rem; }
+  .feed-meta { font-size: 0.75rem; color: var(--text-sub); }
+  .feed-badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    background: #3a3a1a;
+    color: var(--accent);
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-left: auto;
+  }
+  .feed-badge.boosted {
+    background: rgba(255, 212, 0, 0.1);
+    color: var(--accent);
+  }
+
+  .feed-media {
+    background: var(--media-bg);
+    color: var(--media-text);
+    text-align: center;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+  }
+
+  /* ADVERTISEMENT PHOTO STYLES */
+  .feed-ad-photo-container {
+    position: relative;
+    margin: 12px -16px 12px -16px;
+    width: calc(100% + 32px);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .feed-ad-photo-container:hover {
+    filter: brightness(0.95);
+  }
+  .feed-ad-photo-container .feed-ad-main-photo {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+  .feed-ad-photo-badge {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    z-index: 5;
+  }
+  .feed-ad-photo-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .feed-ad-photo-container:hover .feed-ad-photo-hint {
+    opacity: 1;
+  }
+
+  .feed-item-price {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .feed-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 12px;
+    word-wrap: break-word;
+  }
+  .feed-location {
+    font-size: 0.8rem;
+    color: var(--text-sub);
+    margin-bottom: 12px;
+  }
+
+  .actions-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .action-btn {
+    flex: 1; min-width: 80px;
+    padding: 8px 12px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    color: var(--text-sub);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .action-btn:hover { background: var(--input-border); }
+  .action-btn.reacted {
+    background: var(--accent);
+    color: var(--accent-text);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  .comments-section {
+    display: none;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--input-border);
+  }
+  .comments-section.open { display: block; }
+  .comment {
+    background: var(--input-bg);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+  }
+  .comment-name { font-weight: 600; font-size: 0.8rem; color: var(--accent); }
+  .comment-text { margin-top: 4px; }
+  .comment-input-row {
+    display: flex;
+    gap: 8px;
+  }
+  .comment-input-row input {
+    flex: 1;
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--input-border);
+    background: var(--input-bg);
+    color: var(--text);
+    font-size: 0.85rem;
+  }
+  .comment-input-row input:focus { outline: none; border-color: var(--accent); }
+  .comment-send {
+    padding: 10px 16px;
+    background: var(--accent);
+    color: var(--accent-text);
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.8rem;
+  }
+
+  /* BOOST MODAL */
+  .boost-tier {
+    flex: 1;
+    padding: 16px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+  }
+  .boost-tier.selected {
+    background: var(--accent);
+    color: var(--accent-text);
+    border-color: var(--accent);
+  }
+  .boost-tier-label { font-weight: 600; font-size: 0.9rem; }
+  .boost-tier-cost { font-size: 0.8rem; margin-top: 6px; opacity: 0.8; }
+
+  .boost-confirm-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    color: var(--accent-text);
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 16px;
+  }
+  .boost-confirm-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* TOAST */
+  #toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120px);
+    background: #222;
+    color: #fff;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    transition: transform 0.3s ease-out;
+    z-index: 2000;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* THEME TOGGLE */
+  .theme-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--accent-text);
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREENS -->
+<div id="authContainer" style="
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.6) 100%), url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 800%22><defs><linearGradient id=%22g1%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22><stop offset=%220%25%22 style=%22stop-color:%23FF6B35;stop-opacity:1%22/><stop offset=%22100%25%22 style=%22stop-color:%23FF8C42;stop-opacity:1%22/></linearGradient></defs><rect width=%221200%22 height=%22800%22 fill=%22%23DAA520%22/><rect x=%2220%22 y=%2250%22 width=%22250%22 height=%22300%22 fill=%22url(%23g1)%22 rx=%2210%22/><rect x=%2240%22 y=%2270%22 width=%2220%22 height=%22150%22 fill=%22%23654321%22/><rect x=%2280%22 y=%2270%22 width=%2220%22 height=%22150%22 fill=%22%23654321%22/><rect x=%22120%22 y=%2270%22 width=%2220%22 height=%22150%22 fill=%22%23654321%22/><rect x=%22160%22 y=%2270%22 width=%2220%22 height=%22150%22 fill=%22%23654321%22/><circle cx=%22130%22 cy=%2230%22 r=%2220%22 fill=%22%23FF4500%22/><rect x=%22310%22 y=%2280%22 width=%22200%22 height=%22220%22 fill=%22%238B7355%22 rx=%228%22/><circle cx=%22340%22 cy=%2250%22 r=%2225%22 fill=%22%23DC143C%22/><circle cx=%22410%22 cy=%2250%22 r=%2225%22 fill=%22%23FF6347%22/><circle cx=%22480%22 cy=%2250%22 r=%2225%22 fill=%22%23FF8C00%22/><rect x=%22280%22 y=%22320%22 width=%2230%22 height=%22100%22 fill=%22%23228B22%22/><rect x=%22330%22 y=%22320%22 width=%2230%22 height=%22100%22 fill=%22%238FBC8F%22/><rect x=%22380%22 y=%22320%22 width=%2230%22 height=%22100%22 fill=%22%2332CD32%22/><rect x=%22580%22 y=%22100%22 width=%22220%22 height=%22200%22 fill=%22%23D3D3D3%22 rx=%226%22/><rect x=%22605%22 y=%22120%22 width=%2225%22 height=%22100%22 fill=%22%23696969%22/><rect x=%22660%22 y=%22120%22 width=%2225%22 height=%22100%22 fill=%22%23696969%22/><rect x=%22715%22 y=%22120%22 width=%2225%22 height=%22100%22 fill=%22%23696969%22/><circle cx=%22640%22 cy=%2270%22 r=%2220%22 fill=%22%23FFD700%22/><circle cx=%22695%22 cy=%2270%22 r=%2220%22 fill=%22%238B4513%22/><rect x=%2250%22 y=%22500%22 width=%22240%22 height=%22200%22 fill=%22%23CD853F%22 rx=%228%22/><circle cx=%22100%22 cy=%22480%22 r=%2235%22 fill=%22%23228B22%22/><circle cx=%22140%22 cy=%22480%22 r=%2235%22 fill=%22%23FF6347%22/><circle cx=%22180%22 cy=%22480%22 r=%2235%22 fill=%22%23FFD700%22/><rect x=%22320%22 y=%22520%22 width=%2230%22 height=%22120%22 fill=%22%23654321%22/><rect x=%22370%22 y=%22520%22 width=%2230%22 height=%22120%22 fill=%22%23654321%22/><rect x=%22420%22 y=%22520%22 width=%2230%22 height=%22120%22 fill=%22%23654321%22/><rect x=%22550%22 y=%22420%22 width=%22180%22 height=%22200%22 fill=%22%238B6F47%22 rx=%228%22/><rect x=%22570%22 y=%22440%22 width=%2220%22 height=%22100%22 fill=%22%23654321%22/><rect x=%22610%22 y=%22440%22 width=%2220%22 height=%22100%22 fill=%22%23654321%22/><rect x=%22650%22 y=%22440%22 width=%2220%22 height=%22100%22 fill=%22%23654321%22/><circle cx=%22610%22 cy=%22390%22 r=%2225%22 fill=%22%23FF6347%22/><rect x=%22800%22 y=%2250%22 width=%22200%22 height=%22250%22 fill=%22%235F9EA0%22 rx=%226%22/><circle cx=%22850%22 cy=%22200%22 r=%2240%22 fill=%22%23FFD700%22/><rect x=%22820%22 y=%22320%22 width=%2230%22 height=%22120%22 fill=%22%23696969%22/><rect x=%22880%22 y=%22320%22 width=%2230%22 height=%22120%22 fill=%22%23696969%22/><ellipse cx=%22950%22 cy=%22200%22 rx=%2245%22 ry=%2235%22 fill=%22%23228B22%22/><path d=%22M 900 300 L 920 250 L 940 300 Z%22 fill=%22%238B4513%22/></svg>');
+  background-size: cover;
+  background-position: center;
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 16px;
+">
+  
+  <!-- SPLASH SCREEN (with language selector) -->
+  <div id="splashScreen" style="
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    text-align: center;
+  ">
+    <div style="
+      background: rgba(255, 255, 255, 0.98);
+      border-radius: 20px;
+      padding: 40px 24px;
+      max-width: 340px;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+      border: 1px solid rgba(24, 119, 242, 0.15);
+      backdrop-filter: blur(10px);
+    ">
+      <div style="font-size: 3rem; margin-bottom: 16px;">🏪</div>
+      <h1 style="font-size: 1.8rem; margin-bottom: 8px; color: var(--accent);">Cari-Cari</h1>
+      <p id="splashSubtitle" style="color: var(--text-sub); margin-bottom: 8px; font-size: 0.95rem;">Hyperlocal Marketplace for Sabah</p>
+      
+      <!-- Language selector on splash -->
+      <div style="
+        background: var(--input-bg);
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        padding: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        gap: 6px;
+      ">
+        <button onclick="setLanguage('eng')" id="langBtnEng" style="
+          flex: 1;
+          padding: 8px;
+          background: var(--accent);
+          color: var(--accent-text);
+          border: none;
+          border-radius: 6px;
+          font-weight: 600;
+          font-size: 0.85rem;
+          cursor: pointer;
+        ">🇬🇧 ENG</button>
+        <button onclick="setLanguage('bm')" id="langBtnBm" style="
+          flex: 1;
+          padding: 8px;
+          background: transparent;
+          color: var(--text);
+          border: 1px solid var(--input-border);
+          border-radius: 6px;
+          font-weight: 600;
+          font-size: 0.85rem;
+          cursor: pointer;
+        ">🇲🇾 BM</button>
+      </div>
+      
+      <button onclick="showSignIn()" style="
+        width: 100%;
+        padding: 14px;
+        background: var(--accent);
+        color: var(--accent-text);
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        margin-bottom: 10px;
+      " id="splashSignInBtn">Sign In</button>
+      
+      <button onclick="showRegister()" style="
+        width: 100%;
+        padding: 14px;
+        background: var(--input-bg);
+        color: var(--text);
+        border: 1px solid var(--input-border);
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+      " id="splashCreateBtn">Create Account</button>
+    </div>
+  </div>
+
+  <!-- REGISTER SCREEN -->
+  <div id="registerScreen" style="display: none;">
+    <div style="max-width: 400px; margin: 40px auto;">
+      <button onclick="showSplash()" style="
+        background: none;
+        border: none;
+        color: var(--accent);
+        font-size: 1rem;
+        cursor: pointer;
+        margin-bottom: 20px;
+      ">← Back</button>
+
+      <h1 style="font-size: 1.8rem; margin-bottom: 8px;">Create Account</h1>
+      <p style="color: var(--text-sub); margin-bottom: 24px;">Join Cari-Cari and start selling locally</p>
+
+      <input type="text" id="regName" placeholder="Full Name" style="
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text);
+        font-size: 16px;
+        margin-bottom: 12px;
+      ">
+
+      <input type="email" id="regEmail" placeholder="Email Address" style="
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text);
+        font-size: 16px;
+        margin-bottom: 12px;
+      ">
+
+      <input type="tel" id="regPhone" placeholder="Phone Number (e.g., +6019234567)" style="
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text);
+        font-size: 16px;
+        margin-bottom: 12px;
+      ">
+
+      <input type="password" id="regPassword" placeholder="Password (min 8 characters)" style="
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text);
+        font-size: 16px;
+        margin-bottom: 12px;
+      ">
+
+      <label style="display: flex; align-items: center; margin-bottom: 16px; gap: 8px; cursor: pointer;">
+        <input type="checkbox" id="agreeTerms" style="width: 18px; height: 18px; cursor: pointer;">
+        <span style="font-size: 0.85rem;">I agree to the <a onclick="showPDPA()" style="color: var(--accent); text-decoration: none; cursor: pointer; font-weight: 600;">PDPA Policy</a> and Terms</span>
+      </label>
+
+      <button onclick="completeRegister()" style="
+        width: 100%;
+        padding: 14px;
+        background: var(--accent);
+        color: var(--accent-text);
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        margin-bottom: 12px;
+      ">Create Account</button>
+
+      <p style="text-align: center; color: var(--text-sub); font-size: 0.9rem;">
+        Already have an account? <a onclick="showSignIn()" style="color: var(--accent); text-decoration: none; cursor: pointer; font-weight: 600;">Sign in</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- SIGN IN SCREEN -->
+  <div id="signInScreen" style="display: none;">
+    <div style="max-width: 400px; margin: 40px auto;">
+      <button onclick="showSplash()" style="
+        background: none;
+        border: none;
+        color: var(--accent);
+        font-size: 1rem;
+        cursor: pointer;
+        margin-bottom: 20px;
+      ">← Back</button>
+
+      <h1 style="font-size: 1.8rem; margin-bottom: 8px;">Welcome Back</h1>
+      <p style="color: var(--text-sub); margin-bottom: 24px;">Sign in to access Cari-Cari</p>
+
+      <input type="email" id="signinEmail" placeholder="Email Address" style="
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text);
+        font-size: 16px;
+        margin-bottom: 12px;
+      ">
+
+      <input type="password" id="signinPassword" placeholder="Password" style="
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text);
+        font-size: 16px;
+        margin-bottom: 16px;
+      ">
+
+      <button onclick="completeSignIn()" style="
+        width: 100%;
+        padding: 14px;
+        background: var(--accent);
+        color: var(--accent-text);
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        margin-bottom: 12px;
+      ">Sign In</button>
+
+      <p style="text-align: center; color: var(--text-sub); font-size: 0.85rem; margin-bottom: 12px;">
+        <a onclick="showForgotPassword()" style="color: var(--accent); text-decoration: none; cursor: pointer;">Forgot password?</a>
+      </p>
+
+      <p style="text-align: center; color: var(--text-sub); font-size: 0.9rem;">
+        Don't have an account? <a onclick="showRegister()" style="color: var(--accent); text-decoration: none; cursor: pointer; font-weight: 600;">Create one</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- PDPA POLICY SCREEN -->
+  <div id="pdpaScreen" style="display: none;">
+    <div style="max-width: 600px; margin: 20px auto;">
+      <button onclick="closePDPA()" style="
+        background: none;
+        border: none;
+        color: var(--accent);
+        font-size: 1rem;
+        cursor: pointer;
+        margin-bottom: 20px;
+      ">← Back</button>
+
+      <h1 style="font-size: 1.8rem; margin-bottom: 16px;">Personal Data Protection Policy</h1>
+
+      <div style="background: var(--card); padding: 16px; border-radius: 10px; border: 1px solid var(--card-border); line-height: 1.6;">
+        
+        <h2 style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; color: var(--accent);">1. Introduction</h2>
+        <p>Cari-Cari respects your privacy and is committed to protecting your personal data. This PDPA (Personal Data Protection Act) policy explains how we collect, use, and safeguard your information.</p>
+
+        <h2 style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; color: var(--accent);">2. Data We Collect</h2>
+        <p>We collect the following personal data:</p>
+        <ul style="margin-left: 20px; margin-bottom: 12px;">
+          <li>Full Name</li>
+          <li>Email Address</li>
+          <li>Phone Number</li>
+          <li>Business Information (if seller)</li>
+          <li>Location Data (GPS, with permission)</li>
+          <li>Transaction History</li>
+          <li>Device Information</li>
+          <li>Usage Analytics</li>
+        </ul>
+
+        <h2 style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; color: var(--accent);">3. How We Use Your Data</h2>
+        <p>Your data is used for:</p>
+        <ul style="margin-left: 20px; margin-bottom: 12px;">
+          <li>Account creation and authentication</li>
+          <li>Providing marketplace services</li>
+          <li>Payment processing</li>
+          <li>Communication and support</li>
+          <li>Improving our services</li>
+          <li>Legal compliance</li>
+          <li>Preventing fraud and abuse</li>
+        </ul>
+
+        <h2 style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; color: var(--accent);">4. Data Security</h2>
+        <p>We implement industry-standard security measures to protect your data:</p>
+        <ul style="margin-left: 20px; margin-bottom: 12px;">
+          <li>HTTPS encryption for all connections</li>
+          <li>Secure password hashing</li>
+          <li>Limited access to personal data</li>
+          <li>Regular security audits</li>
+          <li>Compliance with PDPA regulations</li>
+        </ul>
+
+        <h2 style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; color: var(--accent);">5. Your Rights</h2>
+        <p>Under PDPA, you have the right to:</p>
+        <ul style="margin-left: 20px; margin-bottom: 12px;">
+          <li>Access your personal data</li>
+          <li>Request corrections to your data</li>
+          <li>Request deletion of your data</li>
+          <li>Withdraw consent at any time</li>
+          <li>Obtain information about data usage</li>
+        </ul>
+
+        <h2 style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; color: var(--accent);">6. Data Retention</h2>
+        <p>We retain your personal data for as long as necessary to provide our services. You can request deletion anytime by contacting us.</p>
+
+        <h2 style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; color: var(--accent);">7. Third-Party Services</h2>
+        <p>We may share data with trusted partners (Supabase, Flexi Payment, Toyyibpay) only for service delivery. These partners are contractually bound to protect your data.</p>
+
+        <h2 style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; color: var(--accent);">8. Contact Us</h2>
+        <p>For PDPA inquiries or to exercise your rights, contact:</p>
+        <ul style="margin-left: 20px; margin-bottom: 12px;">
+          <li>Email: privacy@cari-cari.com.my</li>
+          <li>Phone: +60-82-XXXXXX</li>
+          <li>Address: Kota Kinabalu, Sabah, Malaysia</li>
+        </ul>
+
+        <p style="margin-top: 20px; color: var(--text-sub); font-size: 0.85rem;">Last updated: July 2024</p>
+      </div>
+
+      <button onclick="closePDPA()" style="
+        width: 100%;
+        padding: 12px;
+        background: var(--accent);
+        color: var(--accent-text);
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        margin-top: 16px;
+        cursor: pointer;
+      ">I Understand</button>
+    </div>
+  </div>
+
+</div>
+
+<div id="app">
+
+  <!-- HEADER: Search + Integrations + Earnings + Parking + Language -->
+  <div class="header-row">
+    <div class="search-box">
+      <span>🔍</span>
+      <input type="text" placeholder="Search businesses, items..." id="searchInput">
+    </div>
+    <select id="categoryFilter" style="padding: 8px 10px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--text); font-size: 14px; cursor: pointer; flex-shrink: 0;">
+      <option value="">All</option>
+      <option value="eatery">🍽️ Eatery</option>
+      <option value="services">🔧 Services</option>
+      <option value="product">📦 Product</option>
+      <option value="minimarket">🏪 Minimarket</option>
+    </select>
+    <div class="icon-btn" id="integrations-btn" title="Revenue Integrations">
+      💼
+    </div>
+    <div class="icon-btn" id="earnings-btn" title="My Earnings">
+      💰
+    </div>
+    <div class="icon-btn" id="parking-btn" title="Parking Payment">
+      🅿️
+    </div>
+    <div class="icon-btn" id="language-toggle" title="Toggle language">
+      <span id="lang-display">ENG</span>
+    </div>
+    <div class="icon-btn" title="Notifications">
+      🔔
+      <div class="notif-dot"></div>
+    </div>
+    <div class="icon-btn" id="userMenuBtn" title="User Menu">
+      👤
+    </div>
+  </div>
+
+  <!-- USER MENU DROPDOWN -->
+  <div id="userMenu" style="
+    display: none;
+    position: fixed;
+    top: 60px;
+    right: 16px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 12px 0;
+    z-index: 100;
+    min-width: 200px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  ">
+    <div style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">
+      <div style="font-weight: 600;" id="userMenuName">User</div>
+      <div style="font-size: 0.85rem; color: var(--text-sub);" id="userMenuEmail">email@example.com</div>
+    </div>
+    <div style="padding: 8px 0;">
+      <button onclick="toggleUserMenu()" style="
+        width: 100%;
+        padding: 10px 16px;
+        background: none;
+        border: none;
+        text-align: left;
+        color: var(--text);
+        cursor: pointer;
+        font-size: 0.95rem;
+      ">👤 My Profile</button>
+      <button onclick="toggleUserMenu()" style="
+        width: 100%;
+        padding: 10px 16px;
+        background: none;
+        border: none;
+        text-align: left;
+        color: var(--text);
+        cursor: pointer;
+        font-size: 0.95rem;
+      ">⚙️ Settings</button>
+      <button onclick="toggleUserMenu()" style="
+        width: 100%;
+        padding: 10px 16px;
+        background: none;
+        border: none;
+        text-align: left;
+        color: var(--text);
+        cursor: pointer;
+        font-size: 0.95rem;
+      ">❓ Help & Support</button>
+      <div style="border-top: 1px solid var(--card-border); margin-top: 8px; padding-top: 8px;">
+        <button onclick="logout()" style="
+          width: 100%;
+          padding: 10px 16px;
+          background: none;
+          border: none;
+          text-align: left;
+          color: #ff4444;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 0.95rem;
+        ">🚪 Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STORIES BAR -->
+  <div class="stories-bar">
+    <div class="story add-story">
+      <div class="story-ring">
+        <div class="story-avatar">+</div>
+      </div>
+      <div class="story-name">Add Story</div>
+    </div>
+    <div class="story">
+      <div class="story-ring"><div class="story-avatar">A1</div></div>
+      <div class="story-name">Ali</div>
+    </div>
+    <div class="story">
+      <div class="story-ring seen"><div class="story-avatar">S2</div></div>
+      <div class="story-name">Sarah</div>
+    </div>
+    <div class="story">
+      <div class="story-ring"><div class="story-avatar">M3</div></div>
+      <div class="story-name">Maria</div>
+    </div>
+    <div class="story">
+      <div class="story-ring"><div class="story-avatar">R4</div></div>
+      <div class="story-name">Rafi</div>
+    </div>
+  </div>
+
+  <!-- NEARBY FILTER -->
+  <div class="filter-row">
+    <div class="filter-pill active" data-filter="nearby">📍 Nearby (2km)</div>
+    <div class="filter-pill" data-filter="popular">⭐ Popular</div>
+    <div class="filter-pill" data-filter="following">❤️ Following</div>
+    <div class="filter-pill" data-filter="saved">💾 Saved</div>
+  </div>
+
+  <!-- DISTANCE INDICATOR (shows when nearby filter active) -->
+  <div id="distance-info" class="distance-info" style="display:none;">
+    <span id="distance-text">📡 Showing businesses within 2km radius</span>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="how-it-works">
+    <div class="hiw-header">
+      <h2>💡 How Cari-Cari works</h2>
+      <span class="hiw-chevron">▼</span>
+    </div>
+    <div class="hiw-body">
+      <div class="hiw-row">
+        <div class="hiw-dot"></div>
+        <div>Share ads or posts about local businesses, items, & services</div>
+      </div>
+      <div class="hiw-row">
+        <div class="hiw-dot"></div>
+        <div>Discover what's nearby & connect with sellers</div>
+      </div>
+      <div class="hiw-row">
+        <div class="hiw-dot"></div>
+        <div>Boost your posts to reach more people in your area</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREDITS + BUY -->
+  <div class="top-bar">
+    <span class="credits-pill" id="creditsDisplay">💾 250 credits</span>
+    <button class="buy-btn" onclick="openBuyCreditsModal()">+ Buy credits</button>
+  </div>
+
+  <!-- BUY CREDITS MODAL -->
+  <div id="buyCreditsModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 2000; align-items: flex-end;">
+    <div style="background: var(--card); border-radius: 20px 20px 0 0; width: 100%; padding: 20px; max-height: 90vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin: 0; color: var(--accent);">💳 Buy Credits</h2>
+        <button onclick="closeBuyCreditsModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text);">✕</button>
+      </div>
+
+      <!-- INFO BOX -->
+      <div style="background: linear-gradient(135deg, #1a1a12, #161616); border: 1px solid #33301a; border-radius: 10px; padding: 12px; margin-bottom: 16px;">
+        <div style="font-size: 0.85rem; color: #ffd400;">
+          <strong>💡 How Credits Work:</strong><br>
+          • Free post: 0 credits<br>
+          • Paid ad: 10 credits (5 if Premium)<br>
+          • Boost ad: +20-120 credits<br>
+          1 credit ≈ RM 0.09
+        </div>
+      </div>
+
+      <!-- CREDIT PACKAGES -->
+      <label style="display: block; font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px; font-weight: 600;">Select Package:</label>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+        <!-- Package 1: RM 10 -->
+        <div class="creditPackage" onclick="selectCreditPackage(this, 10, 110)" style="
+          background: var(--input-bg); 
+          border: 2px solid var(--input-border); 
+          border-radius: 10px; 
+          padding: 12px; 
+          text-align: center; 
+          cursor: pointer;
+          transition: all 0.3s;
+        ">
+          <div style="font-size: 1.2rem; font-weight: 600; color: var(--text); margin-bottom: 4px;">RM 10</div>
+          <div style="font-size: 1.3rem; font-weight: 600; color: var(--accent); margin-bottom: 4px;">110</div>
+          <div style="font-size: 0.75rem; color: var(--text-sub);">credits</div>
+          <div style="font-size: 0.7rem; color: #999; margin-top: 6px;">Best value</div>
+        </div>
+
+        <!-- Package 2: RM 25 -->
+        <div class="creditPackage" onclick="selectCreditPackage(this, 25, 300)" style="
+          background: linear-gradient(135deg, #1a1a12, #161616);
+          border: 2px solid #ffd400; 
+          border-radius: 10px; 
+          padding: 12px; 
+          text-align: center; 
+          cursor: pointer;
+          transition: all 0.3s;
+        ">
+          <div style="font-size: 0.7rem; color: #ffd400; font-weight: 600; margin-bottom: 4px;">⭐ POPULAR</div>
+          <div style="font-size: 1.2rem; font-weight: 600; color: var(--text); margin-bottom: 4px;">RM 25</div>
+          <div style="font-size: 1.3rem; font-weight: 600; color: #ffd400; margin-bottom: 4px;">300</div>
+          <div style="font-size: 0.75rem; color: var(--text-sub);">credits</div>
+        </div>
+
+        <!-- Package 3: RM 50 -->
+        <div class="creditPackage" onclick="selectCreditPackage(this, 50, 750)" style="
+          background: var(--input-bg); 
+          border: 2px solid var(--input-border); 
+          border-radius: 10px; 
+          padding: 12px; 
+          text-align: center; 
+          cursor: pointer;
+          transition: all 0.3s;
+        ">
+          <div style="font-size: 1.2rem; font-weight: 600; color: var(--text); margin-bottom: 4px;">RM 50</div>
+          <div style="font-size: 1.3rem; font-weight: 600; color: var(--accent); margin-bottom: 4px;">750</div>
+          <div style="font-size: 0.75rem; color: var(--text-sub);">credits</div>
+          <div style="font-size: 0.7rem; color: #999; margin-top: 6px;">Save more</div>
+        </div>
+      </div>
+
+      <!-- SELECTED PACKAGE INFO -->
+      <div id="selectedPackageInfo" style="
+        display: none;
+        background: var(--input-bg); 
+        border: 1px solid var(--input-border);
+        border-radius: 10px; 
+        padding: 12px; 
+        margin-bottom: 16px; 
+        text-align: center;
+      ">
+        <div style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 6px;">You will receive:</div>
+        <div style="font-size: 1.5rem; color: var(--accent); font-weight: 600;" id="selectedCredits">-</div>
+        <div style="font-size: 0.75rem; color: #999; margin-top: 6px;">
+          Cost: <strong id="selectedPrice">-</strong> | Price per credit: <strong id="selectedRate">-</strong>
+        </div>
+      </div>
+
+      <!-- PAYMENT METHODS -->
+      <label style="display: block; font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px; font-weight: 600;">Payment Method:</label>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+        <button onclick="buyCreditsWithCard()" style="
+          padding: 12px; 
+          background: linear-gradient(135deg, #0066CC, #0088FF); 
+          color: white; 
+          border: none; 
+          border-radius: 10px; 
+          cursor: pointer; 
+          font-weight: 600;
+          font-size: 0.9rem;
+        ">
+          💳 Credit Card
+        </button>
+        <button onclick="buyCreditsWithFPX()" style="
+          padding: 12px; 
+          background: linear-gradient(135deg, #FF6B6B, #FF8E8E); 
+          color: white; 
+          border: none; 
+          border-radius: 10px; 
+          cursor: pointer; 
+          font-weight: 600;
+          font-size: 0.9rem;
+        ">
+          🏦 FPX Banking
+        </button>
+        <button onclick="buyCreditsWithTouchNGo()" style="
+          padding: 12px; 
+          background: linear-gradient(135deg, #FF9500, #FFB500); 
+          color: white; 
+          border: none; 
+          border-radius: 10px; 
+          cursor: pointer; 
+          font-weight: 600;
+          font-size: 0.9rem;
+        ">
+          📱 Touch n Go
+        </button>
+        <button onclick="buyCreditsWithFlexi()" style="
+          padding: 12px; 
+          background: linear-gradient(135deg, #00AA66, #00DD99); 
+          color: white; 
+          border: none; 
+          border-radius: 10px; 
+          cursor: pointer; 
+          font-weight: 600;
+          font-size: 0.9rem;
+        ">
+          💰 Flexi Payment
+        </button>
+      </div>
+
+      <!-- ACTION BUTTONS -->
+      <button id="buyCreditsBtn" onclick="completeCreditPurchase()" style="
+        width: 100%; 
+        padding: 14px; 
+        background: var(--accent); 
+        color: var(--accent-text); 
+        border: none; 
+        border-radius: 10px; 
+        font-weight: 600; 
+        cursor: pointer; 
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+      " disabled>
+        Select a package first
+      </button>
+
+      <button onclick="closeBuyCreditsModal()" style="
+        width: 100%; 
+        padding: 12px; 
+        background: var(--input-bg); 
+        color: var(--text); 
+        border: 1px solid var(--input-border); 
+        border-radius: 10px; 
+        font-weight: 600; 
+        cursor: pointer;
+      ">
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <!-- MAP SECTION -->
+  <div id="mapSection" style="display: none; margin-bottom: 20px;">
+    <div style="background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; height: 400px; position: relative;">
+      <div id="businessMap" style="width: 100%; height: 100%;"></div>
+      <div style="position: absolute; top: 10px; left: 10px; background: var(--card); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; color: var(--text); border: 1px solid var(--card-border); z-index: 10;">
+        <div>📍 Showing <span id="mapShopCount">0</span> shops</div>
+      </div>
+    </div>
+    <button id="closeMapBtn" style="width: 100%; margin-top: 10px; padding: 10px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--text); cursor: pointer; font-weight: 600;">Close Map</button>
+  </div>
+
+  <!-- SHOW MAP BUTTON -->
+  <button id="showMapBtn" style="width: 100%; padding: 12px; background: var(--accent); color: var(--accent-text); border: none; border-radius: 8px; margin-bottom: 14px; cursor: pointer; font-weight: 600; font-size: 1rem;">🗺️ Show Map</button>
+  <div class="composer">
+    <div class="tabs">
+      <div class="tab post-tab active">📝 Post</div>
+      <div class="tab ad-tab">📢 Advertise</div>
+    </div>
+
+    <div id="post-fields" style="display:block;">
+      <textarea id="text-post-input" placeholder="What's on your mind?"></textarea>
+      <div class="post-cost-note">Free to post</div>
+      <button class="post-btn">Post</button>
+    </div>
+
+    <div id="ad-fields" style="display:none;">
+      <!-- CATEGORY SELECTION -->
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 0.8rem; color: var(--text-sub); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Category</label>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div class="category-btn" data-category="eatery">
+            <span style="font-size: 1.3rem;">🍽️</span>
+            <span>Eatery</span>
+          </div>
+          <div class="category-btn" data-category="services">
+            <span style="font-size: 1.3rem;">🔧</span>
+            <span>Services</span>
+          </div>
+          <div class="category-btn" data-category="product">
+            <span style="font-size: 1.3rem;">📦</span>
+            <span>Product</span>
+          </div>
+          <div class="category-btn" data-category="supermarket">
+            <span style="font-size: 1.3rem;">🏪</span>
+            <span>Mini Supermarket</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BASIC DETAILS -->
+      <input type="text" placeholder="Item or business name" id="ad-name">
+      <input type="text" id="price-input" placeholder="Price (optional, e.g., 25 RM)">
+      <textarea id="ad-description" placeholder="Describe your item or service..."></textarea>
+
+      <!-- PHOTO UPLOADS -->
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 0.8rem; color: var(--text-sub); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">📸 Shop/Item Photos</label>
+        
+        <!-- Shop Photo (Main) -->
+        <div style="margin-bottom: 12px;">
+          <div style="font-size: 0.85rem; color: var(--text); margin-bottom: 6px; font-weight: 600;">Main Photo (Shop/Item)</div>
+          <div style="
+            border: 2px dashed var(--input-border);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            background: var(--input-bg);
+            transition: all 0.3s;
+          " onclick="document.getElementById('mainPhotoInput').click()" id="mainPhotoDropZone">
+            <div style="font-size: 1.5rem; margin-bottom: 8px;">📷</div>
+            <div style="font-size: 0.85rem; color: var(--text-sub);">Click to upload main shop photo</div>
+            <input type="file" id="mainPhotoInput" accept="image/*" style="display: none;" onchange="handleMainPhoto(event)">
+          </div>
+          <div id="mainPhotoPreview" style="display: none; margin-top: 8px;">
+            <img id="mainPhotoImg" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; margin-bottom: 6px;">
+            <button type="button" onclick="removeMainPhoto()" style="width: 100%; padding: 6px; background: #ff6b6b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">Remove Photo</button>
+          </div>
+        </div>
+
+        <!-- Additional Photos (Gallery) -->
+        <div>
+          <div style="font-size: 0.85rem; color: var(--text); margin-bottom: 6px; font-weight: 600;">Additional Photos (up to 4)</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;" id="additionalPhotosGrid">
+            <div style="
+              border: 2px dashed var(--input-border);
+              border-radius: 8px;
+              padding: 12px;
+              text-align: center;
+              cursor: pointer;
+              background: var(--input-bg);
+            " onclick="document.getElementById('additionalPhoto1').click()">
+              <div style="font-size: 1.2rem;">➕</div>
+              <div style="font-size: 0.75rem; color: var(--text-sub);">Photo 1</div>
+              <input type="file" id="additionalPhoto1" accept="image/*" style="display: none;" onchange="handleAdditionalPhoto(event, 1)">
+            </div>
+
+            <div style="
+              border: 2px dashed var(--input-border);
+              border-radius: 8px;
+              padding: 12px;
+              text-align: center;
+              cursor: pointer;
+              background: var(--input-bg);
+            " onclick="document.getElementById('additionalPhoto2').click()">
+              <div style="font-size: 1.2rem;">➕</div>
+              <div style="font-size: 0.75rem; color: var(--text-sub);">Photo 2</div>
+              <input type="file" id="additionalPhoto2" accept="image/*" style="display: none;" onchange="handleAdditionalPhoto(event, 2)">
+            </div>
+
+            <div style="
+              border: 2px dashed var(--input-border);
+              border-radius: 8px;
+              padding: 12px;
+              text-align: center;
+              cursor: pointer;
+              background: var(--input-bg);
+            " onclick="document.getElementById('additionalPhoto3').click()">
+              <div style="font-size: 1.2rem;">➕</div>
+              <div style="font-size: 0.75rem; color: var(--text-sub);">Photo 3</div>
+              <input type="file" id="additionalPhoto3" accept="image/*" style="display: none;" onchange="handleAdditionalPhoto(event, 3)">
+            </div>
+
+            <div style="
+              border: 2px dashed var(--input-border);
+              border-radius: 8px;
+              padding: 12px;
+              text-align: center;
+              cursor: pointer;
+              background: var(--input-bg);
+            " onclick="document.getElementById('additionalPhoto4').click()">
+              <div style="font-size: 1.2rem;">➕</div>
+              <div style="font-size: 0.75rem; color: var(--text-sub);">Photo 4</div>
+              <input type="file" id="additionalPhoto4" accept="image/*" style="display: none;" onchange="handleAdditionalPhoto(event, 4)">
+            </div>
+          </div>
+
+          <!-- Additional Photos Preview -->
+          <div id="additionalPhotosPreview" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;"></div>
+        </div>
+      </div>
+
+      <!-- LOCATION -->
+      <div id="location-box" class="location-box" style="margin-bottom: 14px;">📍 Pin your location (optional)</div>
+
+      <!-- BOOST TOGGLE -->
+      <div class="composer-boost-toggle" id="composer-boost-toggle" style="margin-bottom: 12px;">
+        <div class="composer-boost-switch" id="composer-boost-switch"></div>
+        <span style="font-size: 0.85rem;">Boost this ad</span>
+      </div>
+
+      <!-- BOOST TIERS -->
+      <div class="composer-boost-tiers" id="composer-boost-tiers">
+        <div class="composer-boost-tier" data-cost="10" data-label="3 hours">
+          <div class="boost-tier-label">⏰ 3h</div>
+          <div class="boost-tier-cost">10 credits</div>
+        </div>
+        <div class="composer-boost-tier" data-cost="20" data-label="1 day">
+          <div class="boost-tier-label">📅 1 day</div>
+          <div class="boost-tier-cost">20 credits</div>
+        </div>
+        <div class="composer-boost-tier" data-cost="40" data-label="3 days">
+          <div class="boost-tier-label">📅 3 days</div>
+          <div class="boost-tier-cost">40 credits</div>
+        </div>
+        <div class="composer-boost-tier" data-cost="70" data-label="1 week">
+          <div class="boost-tier-label">📅 1 week</div>
+          <div class="boost-tier-cost">70 credits</div>
+        </div>
+      </div>
+
+      <!-- WARNING MESSAGE -->
+      <div id="sales-warning" class="sales-warning" style="display: none;">
+        ⚠️ Your ad text contains sales language. Switch to "Advertise" tab to ensure proper classification. <a id="sales-warning-switch" style="cursor:pointer; text-decoration:underline;">Switch</a>
+      </div>
+
+      <!-- COST NOTE -->
+      <div class="post-cost-note">This will use 5 credits</div>
+
+      <!-- SUBMIT BUTTON -->
+      <button class="post-btn" onclick="submitAdvertisement()">Post Advertisement</button>
+    </div>
+  </div>
+
+  <!-- EARNINGS/COMMISSION DASHBOARD (accessible from menu) -->
+  <div id="earnings-section" style="display:none; margin-bottom: 24px;">
+    <div style="background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px;">
+      <h2 style="margin-bottom: 20px; color: var(--accent);">💰 Earnings Dashboard</h2>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+        <div style="background: var(--input-bg); padding: 14px; border-radius: 10px; text-align: center;">
+          <div style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 6px;">Total Earnings</div>
+          <div id="total-earnings" style="font-size: 1.8rem; font-weight: 600; color: #4CAF50;">0.00 RM</div>
+        </div>
+        <div style="background: var(--input-bg); padding: 14px; border-radius: 10px; text-align: center;">
+          <div style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 6px;">Transactions</div>
+          <div id="total-transactions" style="font-size: 1.8rem; font-weight: 600; color: var(--accent);">0</div>
+        </div>
+      </div>
+
+      <div style="background: var(--input-bg); padding: 14px; border-radius: 10px; margin-bottom: 20px;">
+        <div style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Commission Rate</div>
+        <div style="font-size: 1.2rem; font-weight: 600; color: var(--text);">2% per transaction + 0.30 RM flat fee</div>
+      </div>
+
+      <h3 style="color: var(--text); margin-top: 20px; margin-bottom: 12px; font-size: 1rem;">Recent Transactions</h3>
+      <div id="earnings-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto;">
+        <div style="color: var(--text-sub); font-size: 0.9rem; text-align: center; padding: 20px 0;">No transactions yet</div>
+      </div>
+
+      <button id="withdraw-btn" style="width: 100%; padding: 12px; background: var(--accent); color: var(--accent-text); border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 16px;">
+        Withdraw Earnings
+      </button>
+    </div>
+  </div>
+
+  <!-- REVENUE INTEGRATIONS SECTION -->
+  <div id="integrations-section" style="display:none; margin-bottom: 24px;">
+    <div style="background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px;">
+      <h2 style="margin-bottom: 20px; color: var(--accent);">💼 Revenue Integrations</h2>
+      
+      <!-- TAB NAVIGATION -->
+      <div style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--input-border); padding-bottom: 12px; overflow-x: auto;">
+        <button class="revenue-tab active" data-tab="delivery" style="flex-shrink: 0; padding: 8px 12px; background: transparent; color: var(--accent); border: none; cursor: pointer; font-weight: 600; border-bottom: 2px solid var(--accent);">
+          🚗 Delivery
+        </button>
+        <button class="revenue-tab" data-tab="affiliate" style="flex-shrink: 0; padding: 8px 12px; background: transparent; color: var(--text-sub); border: none; cursor: pointer; font-weight: 600;">
+          🛍️ Affiliate
+        </button>
+        <button class="revenue-tab" data-tab="topup" style="flex-shrink: 0; padding: 8px 12px; background: transparent; color: var(--text-sub); border: none; cursor: pointer; font-weight: 600;">
+          📱 Top-up
+        </button>
+        <button class="revenue-tab" data-tab="involve" style="flex-shrink: 0; padding: 8px 12px; background: transparent; color: var(--text-sub); border: none; cursor: pointer; font-weight: 600;">
+          🌐 Involve
+        </button>
+      </div>
+
+      <!-- 1. GRAB DELIVERY -->
+      <div class="revenue-tab-content" data-tab="delivery" style="display:block;">
+        <h3 style="color: var(--text); margin-bottom: 12px;">🚗 Grab Delivery</h3>
+        <p style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 14px;">Earn 10% commission per delivery booked through your app.</p>
+        
+        <div style="background: var(--input-bg); padding: 12px; border-radius: 10px; margin-bottom: 14px;">
+          <div style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 4px;">This Month</div>
+          <div id="grab-earnings" style="font-size: 1.4rem; font-weight: 600; color: #2DB637;">0.00 RM</div>
+        </div>
+
+        <button id="enable-grab-btn" style="width: 100%; padding: 12px; background: #2DB637; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-bottom: 10px;">
+          ✓ Enable Grab Delivery
+        </button>
+
+        <div style="background: var(--input-bg); padding: 10px; border-radius: 8px; font-size: 0.8rem; color: var(--text-sub);">
+          <strong style="color: var(--text);">10% per delivery | Perfect for shops</strong>
+        </div>
+      </div>
+
+      <!-- 2. LAZADA/SHOPEE AFFILIATE -->
+      <div class="revenue-tab-content" data-tab="affiliate" style="display:none;">
+        <h3 style="color: var(--text); margin-bottom: 12px;">🛍️ Lazada & Shopee</h3>
+        <p style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 14px;">Add affiliate links. Earn 5-20% per purchase.</p>
+        
+        <div style="background: var(--input-bg); padding: 12px; border-radius: 10px; margin-bottom: 14px;">
+          <div style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 4px;">This Month</div>
+          <div id="lazada-earnings" style="font-size: 1.4rem; font-weight: 600; color: #FF6000;">0.00 RM</div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+          <button id="enable-lazada-btn" style="flex: 1; padding: 12px; background: #FF6000; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
+            Lazada
+          </button>
+          <button id="enable-shopee-btn" style="flex: 1; padding: 12px; background: #EE2E2E; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
+            Shopee
+          </button>
+        </div>
+
+        <div style="background: var(--input-bg); padding: 10px; border-radius: 8px; font-size: 0.8rem; color: var(--text-sub);">
+          <strong style="color: var(--text);">5-20% per product sold</strong>
+        </div>
+      </div>
+
+      <!-- 3. TOUCH N GO TOP-UP -->
+      <div class="revenue-tab-content" data-tab="topup" style="display:none;">
+        <h3 style="color: var(--text); margin-bottom: 12px;">📱 Touch 'n Go</h3>
+        <p style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 14px;">Offer highway toll top-ups. Earn 3% commission.</p>
+        
+        <div style="background: var(--input-bg); padding: 12px; border-radius: 10px; margin-bottom: 14px;">
+          <div style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 4px;">This Month</div>
+          <div id="tng-earnings" style="font-size: 1.4rem; font-weight: 600; color: #0055CC;">0.00 RM</div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+          <input type="number" id="tng-amount" placeholder="Amount (RM)" min="10" max="500" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text);">
+          <button id="topup-tng-btn" style="flex: 1; padding: 12px; background: #0055CC; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
+            Top-up
+          </button>
+        </div>
+
+        <div style="background: var(--input-bg); padding: 10px; border-radius: 8px; font-size: 0.8rem; color: var(--text-sub);">
+          <strong style="color: var(--text);">3% per transaction</strong>
+        </div>
+      </div>
+
+      <!-- 4. INVOLVE ASIA -->
+      <div class="revenue-tab-content" data-tab="involve" style="display:none;">
+        <h3 style="color: var(--text); margin-bottom: 12px;">🌐 Involve Asia</h3>
+        <p style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 14px;">500+ brands. Earn 3-15% per brand.</p>
+        
+        <div style="background: var(--input-bg); padding: 12px; border-radius: 10px; margin-bottom: 14px;">
+          <div style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 4px;">This Month</div>
+          <div id="involve-earnings" style="font-size: 1.4rem; font-weight: 600; color: #6C5CE7;">0.00 RM</div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+          <button class="involve-brand" data-brand="watsons" style="padding: 10px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; cursor: pointer; color: var(--text); font-weight: 600; font-size: 0.9rem;">
+            💊 Watsons
+          </button>
+          <button class="involve-brand" data-brand="shopee" style="padding: 10px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; cursor: pointer; color: var(--text); font-weight: 600; font-size: 0.9rem;">
+            🛍️ Shopee
+          </button>
+          <button class="involve-brand" data-brand="ringgitplus" style="padding: 10px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; cursor: pointer; color: var(--text); font-weight: 600; font-size: 0.9rem;">
+            💳 RinggitPlus
+          </button>
+          <button class="involve-brand" data-brand="shein" style="padding: 10px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; cursor: pointer; color: var(--text); font-weight: 600; font-size: 0.9rem;">
+            👗 Shein
+          </button>
+        </div>
+
+        <div style="background: var(--input-bg); padding: 10px; border-radius: 8px; font-size: 0.8rem; color: var(--text-sub);">
+          <strong style="color: var(--text);">3-15% per brand</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="parking-section" style="display:none; margin-bottom: 24px;">
+    <div style="background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px;">
+      <h2 style="margin-bottom: 16px; color: var(--accent);">🅿️ Parking Payment</h2>
+      
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 0.8rem; color: var(--text-sub); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Select District Council</label>
+        <select id="parking-district" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text); margin-bottom: 12px;">
+          <option value="">Choose your district...</option>
+          <option value="kk">Kota Kinabalu (DBKK)</option>
+          <option value="sandakan">Sandakan City Council</option>
+          <option value="tawau">Tawau City Council</option>
+          <option value="lahad-datu">Lahad Datu District</option>
+          <option value="semporna">Semporna District</option>
+          <option value="kunak">Kunak District</option>
+          <option value="keningau">Keningau District</option>
+          <option value="tenom">Tenom District</option>
+          <option value="papar">Papar District</option>
+          <option value="kota-belud">Kota Belud District</option>
+          <option value="ranau">Ranau District</option>
+          <option value="kundasang">Kundasang District</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 0.8rem; color: var(--text-sub); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Parking Zone/Location</label>
+        <input type="text" id="parking-location" placeholder="Enter parking location or zone code" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text); margin-bottom: 12px;">
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 0.8rem; color: var(--text-sub); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Duration (hours)</label>
+        <div style="display: flex; gap: 8px;">
+          <input type="number" id="parking-hours" placeholder="1" min="1" max="24" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text);">
+          <button id="calc-parking-btn" style="padding: 12px 20px; background: var(--accent); color: var(--accent-text); border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Calculate</button>
+        </div>
+      </div>
+
+      <div id="parking-cost-display" style="background: var(--input-bg); padding: 12px; border-radius: 10px; margin-bottom: 14px; text-align: center; display: none;">
+        <div style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 6px;">Parking Fee</div>
+        <div id="parking-amount" style="font-size: 1.4rem; font-weight: 600; color: var(--accent);">0 RM</div>
+      </div>
+
+      <!-- FLEXI PAYMENT INTEGRATION -->
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <!-- Flexi Payment Button -->
+        <button onclick="openFlexiPaymentOptions()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #0066CC, #0088FF); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <span style="font-size: 1.2rem;">💳</span>
+          <span>Pay with Flexi Payment (Earn Rewards!)</span>
+        </button>
+
+        <!-- Flexi Payment Options (Hidden) -->
+        <div id="flexiPaymentOptions" style="display: none; background: #e3f2fd; border: 2px solid #0066CC; border-radius: 10px; padding: 12px; gap: 8px;">
+          <div style="color: #0066CC; font-weight: 600; font-size: 0.9rem; margin-bottom: 8px;">Choose how to pay:</div>
+          
+          <button onclick="payWithFlexiAPI()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #0066CC, #0088FF); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            🔐 Pay Directly (Live API)
+          </button>
+          
+          <button onclick="payWithFlexiReferral()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #00AA66, #00DD99); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            🔗 Open Flexi App (Referral Link)
+          </button>
+          
+          <button onclick="closeFlexiPaymentOptions()" style="width: 100%; padding: 12px; background: #999; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            ✕ Cancel
+          </button>
+        </div>
+
+        <!-- Alternative Payment Button -->
+        <button id="pay-parking-btn" style="width: 100%; padding: 14px; background: var(--accent); color: var(--accent-text); border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.95rem;">💰 Other Payment Methods</button>
+      </div>
+      
+      <div id="parking-status" style="font-size: 0.8rem; color: var(--text-sub); text-align: center; margin-top: 12px;"></div>
+    </div>
+  </div>
+
+  <!-- QUICK SERVICES FOR USERS -->
+  <div style="margin-bottom: 20px;">
+    <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-sub); margin-bottom: 10px;">Quick Services</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
+      <button id="order-grab-btn" style="padding: 12px 8px; background: #2DB637; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+        <span style="font-size: 1.2rem;">🚗</span>
+        <span>Order Grab</span>
+      </button>
+      <button id="shop-lazada-btn" style="padding: 12px 8px; background: #FF6000; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+        <span style="font-size: 1.2rem;">🛍️</span>
+        <span>Lazada</span>
+      </button>
+      <button id="shop-shopee-btn" style="padding: 12px 8px; background: #EE2E2E; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+        <span style="font-size: 1.2rem;">🛒</span>
+        <span>Shopee</span>
+      </button>
+      <button id="topup-tng-user-btn" style="padding: 12px 8px; background: #0055CC; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+        <span style="font-size: 1.2rem;">📱</span>
+        <span>Touch n Go</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- BOOSTED CAROUSEL -->
+  <div id="boosted-carousel-section" class="boosted-carousel-section" style="display:none;">
+    <div class="carousel-header">Boosted ads near you</div>
+    <div id="boosted-carousel" class="boosted-carousel"></div>
+  </div>
+
+  <!-- FEED -->
+  <div id="feed-container"></div>
+
+</div>
+
+<!-- MAP MODAL -->
+<div id="map-modal">
+  <div class="modal-content">
+    <h2 style="margin-bottom:16px;">📍 Pin your location</h2>
+    <div id="map-container"></div>
+    <button class="post-btn" id="map-confirm-btn" style="margin-bottom:20px;">Confirm location</button>
+  </div>
+</div>
+
+<!-- BOOST MODAL -->
+<div id="boost-modal-overlay">
+  <div class="modal-content">
+    <h2 style="margin-bottom:16px;">🚀 Boost this post</h2>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+      <div class="boost-tier" data-cost="10" data-label="3 hours">
+        <div class="boost-tier-label">⏰ 3 hours</div>
+        <div class="boost-tier-cost">10 credits</div>
+      </div>
+      <div class="boost-tier" data-cost="20" data-label="1 day">
+        <div class="boost-tier-label">📅 1 day</div>
+        <div class="boost-tier-cost">20 credits</div>
+      </div>
+      <div class="boost-tier" data-cost="40" data-label="3 days">
+        <div class="boost-tier-label">📅 3 days</div>
+        <div class="boost-tier-cost">40 credits</div>
+      </div>
+      <div class="boost-tier" data-cost="70" data-label="1 week">
+        <div class="boost-tier-label">📅 1 week</div>
+        <div class="boost-tier-cost">70 credits</div>
+      </div>
+    </div>
+    <button class="boost-confirm-btn" id="boost-confirm-btn" disabled>Select a duration</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- THEME TOGGLE -->
+<button class="theme-toggle">🌙</button>
+
+<script>
+  // ===== AUTHENTICATION SYSTEM =====
+  let isLoggedIn = localStorage.getItem('cariCariUser') ? true : false;
+  let currentUser = JSON.parse(localStorage.getItem('cariCariUser') || '{}');
+  let appLanguage = localStorage.getItem('cariCariLanguage') || '';
+
+  // LANGUAGE SELECTION
+  function selectLanguage(lang) {
+    appLanguage = lang;
+    localStorage.setItem('cariCariLanguage', lang);
+    currentLanguage = lang;
+    updateLanguageDisplay();
+    showSplash();
+  }
+
+  function setLanguage(lang) {
+    appLanguage = lang;
+    localStorage.setItem('cariCariLanguage', lang);
+    currentLanguage = lang;
+    updateLanguageDisplay();
+    updateLanguageButtons();
+    updateLanguage();
+  }
+
+  function updateLanguageButtons() {
+    const engBtn = document.getElementById('langBtnEng');
+    const bmBtn = document.getElementById('langBtnBm');
+    if (appLanguage === 'bm') {
+      engBtn.style.background = 'transparent';
+      engBtn.style.color = 'var(--text)';
+      engBtn.style.border = '1px solid var(--input-border)';
+      bmBtn.style.background = 'var(--accent)';
+      bmBtn.style.color = 'var(--accent-text)';
+      bmBtn.style.border = 'none';
+    } else {
+      engBtn.style.background = 'var(--accent)';
+      engBtn.style.color = 'var(--accent-text)';
+      engBtn.style.border = 'none';
+      bmBtn.style.background = 'transparent';
+      bmBtn.style.color = 'var(--text)';
+      bmBtn.style.border = '1px solid var(--input-border)';
+    }
+  }
+
+  function showLanguageScreen() {
+    // Removed - language selection is now on splash screen
+  }
+
+  function updateLanguageDisplay() {
+    if (appLanguage === 'bm') {
+      document.getElementById('splashSubtitle').textContent = 'Pasaran Hyperlocal untuk Sabah';
+      document.getElementById('langDisplay').textContent = 'BM';
+    } else {
+      document.getElementById('splashSubtitle').textContent = 'Hyperlocal Marketplace for Sabah';
+      document.getElementById('langDisplay').textContent = 'ENG';
+    }
+  }
+
+  function showSplash() {
+    document.getElementById('languageScreen').style.display = 'none';
+    document.getElementById('splashScreen').style.display = 'flex';
+    document.getElementById('registerScreen').style.display = 'none';
+    document.getElementById('signInScreen').style.display = 'none';
+    document.getElementById('pdpaScreen').style.display = 'none';
+    updateLanguageDisplay();
+  }
+
+  function showRegister() {
+    document.getElementById('splashScreen').style.display = 'none';
+    document.getElementById('registerScreen').style.display = 'block';
+  }
+
+  function showSignIn() {
+    document.getElementById('splashScreen').style.display = 'none';
+    document.getElementById('signInScreen').style.display = 'block';
+  }
+
+  function showPDPA() {
+    document.getElementById('pdpaScreen').style.display = 'block';
+  }
+
+  function closePDPA() {
+    document.getElementById('pdpaScreen').style.display = 'none';
+  }
+
+  function showForgotPassword() {
+    showNotif('Password reset link sent to your email 📧');
+  }
+
+  function completeRegister() {
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const phone = document.getElementById('regPhone').value.trim();
+    const password = document.getElementById('regPassword').value.trim();
+    const agreed = document.getElementById('agreeTerms').checked;
+
+    if (!name) {
+      showNotif('Please enter your name');
+      return;
+    }
+    if (!email || !email.includes('@')) {
+      showNotif('Please enter a valid email');
+      return;
+    }
+    if (!phone) {
+      showNotif('Please enter your phone number');
+      return;
+    }
+    if (password.length < 8) {
+      showNotif('Password must be at least 8 characters');
+      return;
+    }
+    if (!agreed) {
+      showNotif('Please agree to PDPA Policy and Terms');
+      return;
+    }
+
+    // Save user
+    const userData = {
+      id: 'user-' + Date.now(),
+      name: name,
+      email: email,
+      phone: phone,
+      joinDate: new Date().toLocaleDateString(),
+      credits: 250,
+      membership: 'free'
+    };
+
+    localStorage.setItem('cariCariUser', JSON.stringify(userData));
+    isLoggedIn = true;
+    currentUser = userData;
+
+    showNotif('✅ Account created! Welcome to Cari-Cari! 🎉');
+    enterApp();
+  }
+
+  function completeSignIn() {
+    const email = document.getElementById('signinEmail').value.trim();
+    const password = document.getElementById('signinPassword').value.trim();
+
+    if (!email || !password) {
+      showNotif('Please enter email and password');
+      return;
+    }
+
+    // For demo: Accept any email/password
+    // In production: Verify with Supabase Auth
+    const userData = {
+      id: 'user-' + Date.now(),
+      name: email.split('@')[0],
+      email: email,
+      phone: '+6019234567',
+      joinDate: new Date().toLocaleDateString(),
+      credits: 250,
+      membership: 'free'
+    };
+
+    localStorage.setItem('cariCariUser', JSON.stringify(userData));
+    isLoggedIn = true;
+    currentUser = userData;
+
+    showNotif('✅ Welcome back! 👋');
+    enterApp();
+  }
+
+  function enterApp() {
+    document.getElementById('authContainer').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('creditsDisplay').textContent = '💾 ' + currentUser.credits + ' credits';
+  }
+
+  // Check if user is logged in
+  window.addEventListener('load', () => {
+    if (isLoggedIn) {
+      document.getElementById('authContainer').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+    } else {
+      document.getElementById('authContainer').style.display = 'block';
+      document.getElementById('splashScreen').style.display = 'flex';
+      updateLanguageDisplay();
+      updateLanguageButtons();
+    }
+  });
+
+  function logout() {
+    localStorage.removeItem('cariCariUser');
+    isLoggedIn = false;
+    currentUser = {};
+    showSplash();
+    showNotif('Logged out successfully');
+  }
+
+  // USER MENU
+  function toggleUserMenu() {
+    const menu = document.getElementById('userMenu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  }
+
+  document.getElementById('userMenuBtn').addEventListener('click', toggleUserMenu);
+
+  // Update user menu info
+  window.addEventListener('load', () => {
+    if (isLoggedIn && currentUser.name) {
+      document.getElementById('userMenuName').textContent = currentUser.name;
+      document.getElementById('userMenuEmail').textContent = currentUser.email;
+    }
+    // Initialize language display
+    if (langDisplay) {
+      langDisplay.textContent = currentLanguage === 'eng' ? 'ENG' : 'BM';
+    }
+  });
+
+  // Close menu when clicking outside
+  document.addEventListener('click', (e) => {
+    const menu = document.getElementById('userMenu');
+    const userBtn = document.getElementById('userMenuBtn');
+    if (!menu.contains(e.target) && !userBtn.contains(e.target)) {
+      menu.style.display = 'none';
+    }
+  });
+
+  // ===== THEME TOGGLE =====
+  const themeToggle = document.querySelector('.theme-toggle');
+  themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('light');
+    themeToggle.textContent = document.body.classList.contains('light') ? '☀️' : '🌙';
+  });
+
+  // ===== LANGUAGE TOGGLE (ENG / MALAY) =====
+  let currentLanguage = appLanguage || 'eng'; // Use selected language or default to English
+  const languageToggle = document.getElementById('language-toggle');
+  const langDisplay = document.getElementById('lang-display');
+
+  const translations = {
+    eng: {
+      searchPlaceholder: 'Search businesses, items...',
+      postPlaceholder: "What's on your mind?",
+      sellPlaceholder: 'Item or business name',
+      priceLabel: 'Price (optional, e.g., 25 RM)',
+      descPlaceholder: 'Describe your item or service...',
+      locationPin: '📍 Pin your location (optional)',
+      categoryLabel: 'Category',
+      eatery: 'Eatery',
+      services: 'Services',
+      product: 'Product',
+      supermarket: 'Mini Supermarket',
+      postBtn: 'Post',
+      sellBtn: 'Post Ad',
+      buyBtn: '+ Buy credits',
+      boostLabel: 'Boost this ad',
+      distanceInfo: '📡 Showing businesses within 2km radius',
+      nearbyFilter: '📍 Nearby (2km)',
+      distanceUnits: 'm away'
+    },
+    ms: {
+      searchPlaceholder: 'Cari perniagaan, item...',
+      postPlaceholder: 'Apa yang ada di fikiran anda?',
+      sellPlaceholder: 'Nama item atau perniagaan',
+      priceLabel: 'Harga (pilihan, contoh: 25 RM)',
+      descPlaceholder: 'Huraikan item atau perkhidmatan anda...',
+      locationPin: '📍 Pasak lokasi anda (pilihan)',
+      categoryLabel: 'Kategori',
+      eatery: 'Restoran',
+      services: 'Perkhidmatan',
+      product: 'Produk',
+      supermarket: 'Mini Pasaraya',
+      postBtn: 'Hantar',
+      sellBtn: 'Hantar Iklan',
+      buyBtn: '+ Beli kredit',
+      boostLabel: 'Gandakan iklan ini',
+      distanceInfo: '📡 Menunjukkan perniagaan dalam radius 2km',
+      nearbyFilter: '📍 Berdekatan (2km)'
+    }
+  };
+
+  languageToggle.addEventListener('click', () => {
+    currentLanguage = currentLanguage === 'eng' ? 'ms' : 'eng';
+    appLanguage = currentLanguage;
+    localStorage.setItem('cariCariLanguage', currentLanguage);
+    langDisplay.textContent = currentLanguage === 'eng' ? 'ENG' : 'BM';
+    updateLanguage();
+  });
+
+  function updateLanguage() {
+    const t = translations[currentLanguage];
+
+    // Update placeholders
+    document.querySelector('.search-box input').placeholder = t.searchPlaceholder;
+    document.getElementById('text-post-input').placeholder = t.postPlaceholder;
+    document.querySelector('#ad-fields input[placeholder*="Item"]').placeholder = t.sellPlaceholder;
+    document.querySelector('#ad-fields textarea').placeholder = t.descPlaceholder;
+    document.getElementById('location-box').textContent = t.locationPin;
+    document.getElementById('price-input').placeholder = t.priceLabel;
+
+    // Update buttons
+    const postBtns = document.querySelectorAll('#post-fields .post-btn');
+    const sellBtns = document.querySelectorAll('#ad-fields .post-btn');
+    postBtns.forEach(btn => btn.textContent = t.postBtn);
+    sellBtns.forEach(btn => btn.textContent = t.sellBtn);
+    
+    document.querySelector('.buy-btn').textContent = t.buyBtn;
+
+    // Update filter pills
+    const nearbyPill = document.querySelector('[data-filter="nearby"]');
+    if (nearbyPill) nearbyPill.textContent = t.nearbyFilter;
+
+    // Update distance info
+    document.getElementById('distance-text').textContent = t.distanceInfo;
+
+    // Update category labels
+    const categoryLabels = {
+      eatery: t.eatery,
+      services: t.services,
+      product: t.product,
+      supermarket: t.supermarket
+    };
+    document.querySelectorAll('.category-btn').forEach(btn => {
+      const cat = btn.dataset.category;
+      btn.querySelector('span:last-child').textContent = categoryLabels[cat];
+    });
+  }
+
+  // ===== DISTANCE FILTER & RADIUS =====
+  const RADIUS_KM = 2;
+  let userLocation = null; // Will store user's coordinates when they use directions
+  let activeFilter = 'nearby';
+
+  // Simulated user location (Kuala Lumpur center for demo)
+  userLocation = { lat: 3.1357, lng: 101.6880, name: 'Your location' };
+
+  function calculateDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distance in km
+  }
+
+  function formatDistance(km) {
+    if (km < 1) {
+      return Math.round(km * 1000) + 'm';
+    }
+    return km.toFixed(1) + 'km';
+  }
+
+  function filterFeedByDistance() {
+    const feedItems = document.querySelectorAll('.feed-item');
+    feedItems.forEach(item => {
+      if (activeFilter !== 'nearby') {
+        item.style.display = 'block';
+        return;
+      }
+
+      // If item has coordinates and we're in nearby filter
+      const lat = item.dataset.lat;
+      const lng = item.dataset.lng;
+
+      if (lat && lng && userLocation) {
+        const distance = calculateDistance(userLocation.lat, userLocation.lng, parseFloat(lat), parseFloat(lng));
+        const withinRadius = distance <= RADIUS_KM;
+
+        if (withinRadius) {
+          item.style.display = 'block';
+          // Update distance display in item if it exists
+          const distanceEl = item.querySelector('[data-distance]');
+          if (!distanceEl) {
+            const actionRow = item.querySelector('.actions-row');
+            if (actionRow) {
+              const distanceSpan = document.createElement('span');
+              distanceSpan.style.fontSize = '0.72rem';
+              distanceSpan.style.color = 'var(--text-sub)';
+              distanceSpan.textContent = `${formatDistance(distance)} away`;
+              distanceSpan.dataset.distance = 'true';
+              actionRow.appendChild(distanceSpan);
+            }
+          }
+        } else {
+          item.style.display = 'none';
+        }
+      } else {
+        // No coordinates, hide in nearby filter
+        item.style.display = 'none';
+      }
+    });
+  }
+
+  // Filter pill click handlers
+  document.querySelectorAll('.filter-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      activeFilter = pill.dataset.filter;
+
+      const distanceInfo = document.getElementById('distance-info');
+      if (activeFilter === 'nearby') {
+        distanceInfo.style.display = 'block';
+        filterFeedByDistance();
+      } else {
+        distanceInfo.style.display = 'none';
+        document.querySelectorAll('.feed-item').forEach(item => item.style.display = 'block');
+      }
+    });
+  });
+
+  // Show distance info by default
+  document.getElementById('distance-info').style.display = 'block';
+
+  // Shop data with RM pricing
+  const shops = [
+    // Eatery
+    { id: 1, name: 'Fresh Nasi Kuning', category: 'eatery', location: 'Setapak', distance: 1.5, price: 'RM 15', rating: 4.8, lat: 3.1357, lng: 101.6880 },
+    { id: 2, name: 'Organic Coffee Roastery', category: 'eatery', location: 'Bangsar', distance: 1.8, price: 'RM 12-18', rating: 4.9, lat: 3.1241, lng: 101.6557 },
+    { id: 3, name: 'Starbucks Kota', category: 'eatery', location: 'Waterfront', distance: 2.5, price: 'RM 8-12', rating: 4.5, lat: 3.1450, lng: 101.6920 },
+    { id: 4, name: 'Dimsum House', category: 'eatery', location: 'Sembulan', distance: 1.6, price: 'RM 8-15', rating: 4.7, lat: 3.1485, lng: 101.6542 },
+    
+    // Services
+    { id: 5, name: 'Laptop Repair Pro', category: 'services', location: 'Mid Valley', distance: 2.0, price: 'From RM 80', rating: 4.6, lat: 3.1189, lng: 101.6107 },
+    { id: 6, name: 'Personal Training', category: 'services', location: 'Pavilion', distance: 2.1, price: 'RM 150/hour', rating: 4.8, lat: 3.1155, lng: 101.6123 },
+    { id: 7, name: 'Car Detailing', category: 'services', location: 'Kolombong', distance: 1.7, price: 'From RM 50', rating: 4.7, lat: 3.1289, lng: 101.6743 },
+    { id: 8, name: 'Phone Repair Service', category: 'services', location: 'City Mall', distance: 1.4, price: 'From RM 30', rating: 4.6, lat: 3.1320, lng: 101.6845 },
+    
+    // Minimarket
+    { id: 9, name: 'Watsons Pharmacy', category: 'minimarket', location: 'KCC', distance: 1.2, price: 'Varies', rating: 4.5, lat: 3.1345, lng: 101.6912 },
+    { id: 10, name: 'Phone Accessories Store', category: 'minimarket', location: 'City Mall', distance: 1.9, price: 'Varies', rating: 4.4, lat: 3.1330, lng: 101.6850 },
+    { id: 11, name: 'Organic Vegetables', category: 'minimarket', location: 'Tanjung Aru', distance: 2.3, price: 'Wholesale', rating: 4.8, lat: 3.1420, lng: 101.6340 },
+    { id: 12, name: '7-Eleven Express', category: 'minimarket', location: 'Kepayan', distance: 0.8, price: 'Standard', rating: 4.3, lat: 3.1275, lng: 101.6520 },
+    
+    // Product
+    { id: 13, name: 'Handmade Crafts', category: 'product', location: 'Inanam', distance: 2.0, price: 'RM 20-100', rating: 4.9, lat: 3.1520, lng: 101.6800 },
+    { id: 14, name: 'Vintage Furniture', category: 'product', location: 'Kepayan', distance: 1.8, price: 'RM 100-500', rating: 4.7, lat: 3.1265, lng: 101.6515 },
+    { id: 15, name: 'Artisan Goods', category: 'product', location: 'Taman Selera', distance: 1.3, price: 'RM 10-200', rating: 4.8, lat: 3.1390, lng: 101.6690 },
+  ];
+
+  // Map instance
+  let businessMap = null;
+  let mapMarkers = [];
+
+  // Initialize map with shop locations
+  function initializeBusinessMap() {
+    if (businessMap) {
+      businessMap.invalidateSize();
+      return;
+    }
+
+    // Create map centered on KL
+    businessMap = L.map('businessMap').setView([3.1357, 101.6880], 13);
+
+    // Add tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(businessMap);
+
+    // Category colors
+    const categoryColors = {
+      eatery: '#FF6B6B',
+      services: '#4ECDC4',
+      minimarket: '#45B7D1',
+      product: '#FFA07A'
+    };
+
+    const categoryEmoji = {
+      eatery: '🍽️',
+      services: '🔧',
+      minimarket: '🏪',
+      product: '📦'
+    };
+
+    // Add markers for all shops
+    shops.forEach(shop => {
+      const markerColor = categoryColors[shop.category] || '#808080';
+      
+      // Create custom marker with emoji
+      const markerHtml = `
+        <div style="
+          background: ${markerColor};
+          color: white;
+          padding: 6px 10px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 20px;
+          font-weight: bold;
+          border: 3px solid white;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        ">
+          ${categoryEmoji[shop.category]}
+        </div>
+      `;
+
+      const marker = L.marker([shop.lat, shop.lng], {
+        icon: L.divIcon({
+          html: markerHtml,
+          iconSize: [40, 40],
+          className: 'custom-marker'
+        })
+      }).addTo(businessMap);
+
+      // Popup on click
+      marker.bindPopup(`
+        <div style="
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          min-width: 200px;
+        ">
+          <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">${shop.name}</div>
+          <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
+            <div>${categoryEmoji[shop.category]} ${shop.category.toUpperCase()}</div>
+            <div>📍 ${shop.location}</div>
+            <div>⭐ ${shop.rating} | 📏 ${shop.distance}km</div>
+            <div>💰 ${shop.price}</div>
+          </div>
+          <button onclick="showToast('Opening ${shop.name}...')" style="
+            width: 100%;
+            padding: 6px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+          ">📍 Get Directions</button>
+        </div>
+      `);
+
+      mapMarkers.push(marker);
+    });
+
+    // Update shop count
+    document.getElementById('mapShopCount').textContent = shops.length;
+  }
+
+  // Show/Hide map
+  document.getElementById('showMapBtn').addEventListener('click', () => {
+    document.getElementById('mapSection').style.display = 'block';
+    document.getElementById('showMapBtn').style.display = 'none';
+    setTimeout(() => initializeBusinessMap(), 100);
+  });
+
+  document.getElementById('closeMapBtn').addEventListener('click', () => {
+    document.getElementById('mapSection').style.display = 'none';
+    document.getElementById('showMapBtn').style.display = 'block';
+  });
+
+  // ===== SEARCH & FILTER FUNCTIONALITY =====
+  function filterShops() {
+    const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+    const selectedCategory = document.getElementById('categoryFilter').value;
+    
+    // Filter shops by category and search query
+    let filtered = shops.filter(shop => {
+      const matchCategory = !selectedCategory || shop.category === selectedCategory;
+      const matchSearch = !searchQuery || 
+        shop.name.toLowerCase().includes(searchQuery) || 
+        shop.location.toLowerCase().includes(searchQuery);
+      
+      return matchCategory && matchSearch;
+    });
+
+    // Sort by distance (nearest first)
+    filtered.sort((a, b) => a.distance - b.distance);
+
+    // Display results in feed or toast
+    if (filtered.length > 0) {
+      console.log(`Found ${filtered.length} shops:`, filtered);
+      showToast(`Found ${filtered.length} nearest ${selectedCategory || 'shops'}`);
+    } else {
+      showToast('No shops found in this category');
+    }
+
+    return filtered;
+  }
+
+  // Add event listeners for search and category filter
+  document.getElementById('searchInput').addEventListener('keyup', filterShops);
+  document.getElementById('categoryFilter').addEventListener('change', filterShops);
+
+  // ===== ADMIN MODE (Hide Revenue from Normal Users) =====
+  let isAdmin = false;
+  
+  // Admin access: press Ctrl+Shift+A to toggle admin mode
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+      isAdmin = !isAdmin;
+      document.getElementById('integrations-btn').style.display = isAdmin ? 'flex' : 'none';
+      document.getElementById('earnings-btn').style.display = isAdmin ? 'flex' : 'none';
+      
+      // Hide sections if switching to user mode
+      if (!isAdmin) {
+        integrationsSection.style.display = 'none';
+        earningsSection.style.display = 'none';
+        feedContainer.style.display = 'block';
+      }
+      
+      const status = isAdmin ? '🔓 Admin Mode ON - Revenue Dashboard Unlocked' : '🔒 Admin Mode OFF - Revenue Hidden';
+      showToast(status);
+      console.log(status);
+    }
+  });
+
+  // Hide integrations and earnings buttons by default (admin only)
+  document.getElementById('integrations-btn').style.display = 'none';
+  document.getElementById('earnings-btn').style.display = 'none';
+
+  // ===== USER SERVICES (Non-Admin) =====
+  
+  // 1. ORDER GRAB (Ride/Food)
+  document.getElementById('order-grab-btn').addEventListener('click', () => {
+    const grabModal = document.createElement('div');
+    grabModal.style.cssText = `
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: flex-end;
+      z-index: 2000;
+    `;
+
+    grabModal.innerHTML = `
+      <div style="
+        background: var(--card);
+        border-radius: 20px 20px 0 0;
+        width: 100%;
+        padding: 24px;
+      ">
+        <h2 style="color: var(--text); margin-bottom: 16px;">🚗 Grab Services</h2>
+        
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <button id="grab-ride-btn" style="
+            width: 100%;
+            padding: 14px;
+            background: #2DB637;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+          ">
+            🚕 Book Grab Ride
+          </button>
+          
+          <button id="grab-food-btn" style="
+            width: 100%;
+            padding: 14px;
+            background: #2DB637;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+          ">
+            🍔 Order Food (GrabFood)
+          </button>
+
+          <button id="grab-delivery-btn" style="
+            width: 100%;
+            padding: 14px;
+            background: #2DB637;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+          ">
+            📦 Grab Delivery
+          </button>
+
+          <button id="close-grab-modal" style="
+            width: 100%;
+            padding: 12px;
+            background: var(--input-bg);
+            color: var(--text);
+            border: 1px solid var(--input-border);
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+          ">
+            Cancel
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(grabModal);
+
+    // Grab Ride
+    document.getElementById('grab-ride-btn').addEventListener('click', () => {
+      // Open Grab app or web
+      window.open('https://grab.com', '_blank');
+      if (grabEnabled) {
+        const commission = 2.50;
+        addIntegrationEarning('grab', 25, commission);
+      }
+      grabModal.remove();
+      showToast('🚗 Opening Grab Ride...');
+    });
+
+    // Grab Food
+    document.getElementById('grab-food-btn').addEventListener('click', () => {
+      window.open('https://food.grab.com', '_blank');
+      if (grabEnabled) {
+        const commission = 1.50;
+        addIntegrationEarning('grab', 50, commission);
+      }
+      grabModal.remove();
+      showToast('🍔 Opening GrabFood...');
+    });
+
+    // Grab Delivery
+    document.getElementById('grab-delivery-btn').addEventListener('click', () => {
+      window.open('https://www.grab.com/my/en/delivery', '_blank');
+      if (grabEnabled) {
+        const commission = 2.00;
+        addIntegrationEarning('grab', 20, commission);
+      }
+      grabModal.remove();
+      showToast('📦 Opening Grab Delivery...');
+    });
+
+    document.getElementById('close-grab-modal').addEventListener('click', () => {
+      grabModal.remove();
+    });
+  });
+
+  // 2. SHOP ON LAZADA
+  document.getElementById('shop-lazada-btn').addEventListener('click', () => {
+    const lazadaUrl = 'https://www.lazada.com.my';
+    window.open(lazadaUrl, '_blank');
+    showToast('🛍️ Opening Lazada...');
+    
+    // Simulate commission on random intervals
+    if (Math.random() > 0.7) {
+      const amount = Math.floor(Math.random() * 300) + 50;
+      const commission = amount * 0.12;
+      if (isAdmin) {
+        addIntegrationEarning('lazada', amount, commission);
+        console.log(`Lazada earning tracked: ${commission.toFixed(2)} RM`);
+      }
+    }
+  });
+
+  // 3. SHOP ON SHOPEE
+  document.getElementById('shop-shopee-btn').addEventListener('click', () => {
+    const shopeeUrl = 'https://shopee.com.my';
+    window.open(shopeeUrl, '_blank');
+    showToast('🛒 Opening Shopee...');
+    
+    // Simulate commission on random intervals
+    if (Math.random() > 0.7) {
+      const amount = Math.floor(Math.random() * 250) + 50;
+      const commission = amount * 0.10;
+      if (isAdmin) {
+        addIntegrationEarning('shopee', amount, commission);
+        console.log(`Shopee earning tracked: ${commission.toFixed(2)} RM`);
+      }
+    }
+  });
+
+  // 4. TOP-UP TOUCH N GO (FOR USERS)
+  document.getElementById('topup-tng-user-btn').addEventListener('click', () => {
+    const tngModal = document.createElement('div');
+    tngModal.style.cssText = `
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    `;
+
+    tngModal.innerHTML = `
+      <div style="
+        background: var(--card);
+        border-radius: 16px;
+        padding: 24px;
+        max-width: 320px;
+        width: 90%;
+      ">
+        <h3 style="color: var(--text); margin-bottom: 16px; text-align: center;">📱 Touch 'n Go Top-up</h3>
+        
+        <input type="number" id="user-tng-amount" placeholder="Amount (RM)" min="10" max="500" value="50" style="
+          width: 100%;
+          padding: 12px;
+          border-radius: 10px;
+          border: 1px solid var(--input-border);
+          background: var(--input-bg);
+          color: var(--text);
+          margin-bottom: 16px;
+          box-sizing: border-box;
+        ">
+
+        <input type="text" id="user-tng-card" placeholder="Card No. (last 4 digits)" maxlength="4" style="
+          width: 100%;
+          padding: 12px;
+          border-radius: 10px;
+          border: 1px solid var(--input-border);
+          background: var(--input-bg);
+          color: var(--text);
+          margin-bottom: 16px;
+          box-sizing: border-box;
+        ">
+
+        <button id="confirm-tng-topup" style="
+          width: 100%;
+          padding: 12px;
+          background: #0055CC;
+          color: white;
+          border: none;
+          border-radius: 10px;
+          font-weight: 600;
+          cursor: pointer;
+          margin-bottom: 8px;
+        ">
+          Top-up Now
+        </button>
+
+        <button id="cancel-tng-modal" style="
+          width: 100%;
+          padding: 12px;
+          background: var(--input-bg);
+          color: var(--text);
+          border: 1px solid var(--input-border);
+          border-radius: 10px;
+          font-weight: 600;
+          cursor: pointer;
+        ">
+          Cancel
+        </button>
+      </div>
+    `;
+
+    document.body.appendChild(tngModal);
+
+    document.getElementById('confirm-tng-topup').addEventListener('click', () => {
+      const amount = parseInt(document.getElementById('user-tng-amount').value);
+      const cardNo = document.getElementById('user-tng-card').value;
+
+      if (!amount || amount < 10 || amount > 500) {
+        showToast('Enter amount between 10-500 RM');
+        return;
+      }
+
+      if (!cardNo || cardNo.length !== 4) {
+        showToast('Enter last 4 digits of your card');
+        return;
+      }
+
+      // Process payment
+      showToast('Processing Touch n Go top-up...');
+      setTimeout(() => {
+        tngModal.remove();
+        
+        // Show success modal
+        const successModal = document.createElement('div');
+        successModal.style.cssText = `
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: rgba(0,0,0,0.7);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 2000;
+        `;
+
+        successModal.innerHTML = `
+          <div style="
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 320px;
+            width: 90%;
+            text-align: center;
+          ">
+            <div style="font-size: 2.5rem; margin-bottom: 12px;">✅</div>
+            <h3 style="color: var(--text); margin-bottom: 8px;">Top-up Successful</h3>
+            <p style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 16px;">
+              <strong style="color: var(--accent); font-size: 1.1rem;">${amount} RM</strong><br>
+              Added to card ending in ${cardNo}
+            </p>
+            <button id="close-tng-success" style="
+              width: 100%;
+              padding: 12px;
+              background: var(--accent);
+              color: var(--accent-text);
+              border: none;
+              border-radius: 10px;
+              font-weight: 600;
+              cursor: pointer;
+            ">
+              Done
+            </button>
+          </div>
+        `;
+
+        document.body.appendChild(successModal);
+
+        document.getElementById('close-tng-success').addEventListener('click', () => {
+          successModal.remove();
+          
+          // Track commission if admin enabled it
+          if (isAdmin) {
+            const commission = amount * 0.03;
+            addIntegrationEarning('tng', amount, commission);
+            console.log(`Touch n Go earning tracked: ${commission.toFixed(2)} RM`);
+          }
+        });
+      }, 1500);
+    });
+
+    document.getElementById('cancel-tng-modal').addEventListener('click', () => {
+      tngModal.remove();
+    });
+  });
+  const integrationsBtn = document.getElementById('integrations-btn');
+  const integrationsSection = document.getElementById('integrations-section');
+
+  integrationsBtn.addEventListener('click', () => {
+    if (!isAdmin) {
+      showToast('🔒 Admin access required (Ctrl+Shift+A)');
+      return;
+    }
+    const isVisible = integrationsSection.style.display === 'block';
+    integrationsSection.style.display = isVisible ? 'none' : 'block';
+    feedContainer.style.display = isVisible ? 'block' : 'none';
+  });
+
+  // Tab switching
+  document.querySelectorAll('.revenue-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const tabName = tab.dataset.tab;
+      
+      // Hide all content
+      document.querySelectorAll('.revenue-tab-content').forEach(content => {
+        content.style.display = 'none';
+      });
+      
+      // Reset all tabs
+      document.querySelectorAll('.revenue-tab').forEach(t => {
+        t.style.color = 'var(--text-sub)';
+        t.style.borderBottom = 'none';
+      });
+      
+      // Show selected content
+      document.querySelector(`.revenue-tab-content[data-tab="${tabName}"]`).style.display = 'block';
+      
+      // Highlight tab
+      tab.style.color = 'var(--accent)';
+      tab.style.borderBottom = '2px solid var(--accent)';
+    });
+  });
+
+  // ===== INTEGRATION EARNINGS TRACKING =====
+  let integrationEarnings = {
+    grab: 0,
+    lazada: 0,
+    shopee: 0,
+    tng: 0,
+    involve: 0
+  };
+
+  function addIntegrationEarning(type, amount, commission) {
+    integrationEarnings[type] += commission;
+    totalEarnings += commission;
+    
+    // Update UI
+    document.getElementById(`${type}-earnings`).textContent = `${integrationEarnings[type].toFixed(2)} RM`;
+    document.getElementById('total-earnings').textContent = `${totalEarnings.toFixed(2)} RM`;
+    
+    // Add to transaction history
+    addTransaction(type, amount, `${type.toUpperCase()} - Commission`);
+  }
+
+  // ===== 1. GRAB DELIVERY =====
+  let grabEnabled = false;
+  document.getElementById('enable-grab-btn').addEventListener('click', () => {
+    const btn = document.getElementById('enable-grab-btn');
+    grabEnabled = !grabEnabled;
+    btn.textContent = grabEnabled ? '✓ Grab Delivery Enabled' : '✓ Enable Grab Delivery';
+    btn.style.opacity = grabEnabled ? '0.7' : '1';
+    showToast(grabEnabled ? '✅ Grab Delivery enabled. Earn 10% per delivery!' : '❌ Grab Delivery disabled');
+  });
+
+  // Simulate Grab delivery bookings
+  setInterval(() => {
+    if (grabEnabled && Math.random() > 0.85) {
+      const deliveryFee = Math.floor(Math.random() * 30) + 10; // 10-40 RM
+      const commission = deliveryFee * 0.10;
+      addIntegrationEarning('grab', deliveryFee, commission);
+      showToast(`🚗 Grab: +${commission.toFixed(2)} RM earned from ${deliveryFee} RM delivery`);
+    }
+  }, 15000); // Every 15 seconds
+
+  // ===== 2. LAZADA & SHOPEE AFFILIATE =====
+  const LAZADA_COMMISSION = 0.12; // 12% average
+  const SHOPEE_COMMISSION = 0.10; // 10% average
+
+  document.getElementById('enable-lazada-btn').addEventListener('click', () => {
+    const amount = Math.floor(Math.random() * 300) + 50; // 50-350 RM
+    const commission = amount * LAZADA_COMMISSION;
+    addIntegrationEarning('lazada', amount, commission);
+    showToast(`🛍️ Lazada: +${commission.toFixed(2)} RM from ${amount} RM purchase`);
+  });
+
+  document.getElementById('enable-shopee-btn').addEventListener('click', () => {
+    const amount = Math.floor(Math.random() * 250) + 50; // 50-300 RM
+    const commission = amount * SHOPEE_COMMISSION;
+    addIntegrationEarning('shopee', amount, commission);
+    showToast(`🛍️ Shopee: +${commission.toFixed(2)} RM from ${amount} RM purchase`);
+  });
+
+  // Simulate Lazada/Shopee clicks
+  setInterval(() => {
+    if (Math.random() > 0.92) {
+      const amount = Math.floor(Math.random() * 200) + 50;
+      const commission = amount * LAZADA_COMMISSION;
+      addIntegrationEarning('lazada', amount, commission);
+      showToast(`🛍️ Lazada: +${commission.toFixed(2)} RM`);
+    }
+  }, 20000);
+
+  // ===== 3. TOUCH N GO TOP-UP =====
+  const TNG_COMMISSION = 0.03; // 3%
+
+  document.getElementById('topup-tng-btn').addEventListener('click', () => {
+    const amount = parseInt(document.getElementById('tng-amount').value);
+    
+    if (!amount || amount < 10 || amount > 500) {
+      showToast('Enter amount between 10-500 RM');
+      return;
+    }
+
+    const commission = amount * TNG_COMMISSION;
+    addIntegrationEarning('tng', amount, commission);
+    showToast(`📱 Touch 'n Go: +${commission.toFixed(2)} RM from ${amount} RM top-up`);
+    document.getElementById('tng-amount').value = '';
+  });
+
+  // ===== 4. INVOLVE ASIA (MULTI-BRAND) =====
+  const involveBrands = {
+    watsons: { name: 'Watsons', commission: 0.08 },      // 8%
+    shopee: { name: 'Shopee', commission: 0.10 },        // 10%
+    ringgitplus: { name: 'RinggitPlus', commission: 0.15 }, // 15%
+    shein: { name: 'Shein', commission: 0.12 }           // 12%
+  };
+
+  document.querySelectorAll('.involve-brand').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const brand = btn.dataset.brand;
+      const brandInfo = involveBrands[brand];
+      
+      // Simulate purchase
+      const amount = Math.floor(Math.random() * 400) + 50; // 50-450 RM
+      const commission = amount * brandInfo.commission;
+      
+      addIntegrationEarning('involve', amount, commission);
+      showToast(`✨ ${brandInfo.name}: +${commission.toFixed(2)} RM from ${amount} RM purchase`);
+      
+      // Visual feedback
+      btn.style.background = 'var(--accent)';
+      btn.style.color = 'var(--accent-text)';
+      setTimeout(() => {
+        btn.style.background = 'var(--input-bg)';
+        btn.style.color = 'var(--text)';
+      }, 500);
+    });
+  });
+
+  // Simulate Involve Asia clicks
+  setInterval(() => {
+    if (Math.random() > 0.88) {
+      const brands = Object.keys(involveBrands);
+      const randomBrand = brands[Math.floor(Math.random() * brands.length)];
+      const brandInfo = involveBrands[randomBrand];
+      const amount = Math.floor(Math.random() * 350) + 50;
+      const commission = amount * brandInfo.commission;
+      addIntegrationEarning('involve', amount, commission);
+    }
+  }, 25000);
+  let totalEarnings = 0;
+  let transactionCount = 0;
+  let transactionHistory = [];
+
+  const COMMISSION_RATE = 0.02; // 2%
+  const FLAT_FEE = 0.30; // 0.30 RM per transaction
+
+  function calculateCommission(amount) {
+    return (amount * COMMISSION_RATE) + FLAT_FEE;
+  }
+
+  function addTransaction(type, amount, description) {
+    const commission = calculateCommission(amount);
+    const transaction = {
+      id: `TXN-${Date.now()}`,
+      type: type, // 'parking' or 'ad'
+      amount: amount,
+      commission: commission,
+      description: description,
+      timestamp: new Date().toLocaleString(),
+      date: new Date()
+    };
+
+    transactionHistory.push(transaction);
+    totalEarnings += commission;
+    transactionCount += 1;
+
+    updateEarningsDisplay();
+    return transaction;
+  }
+
+  function updateEarningsDisplay() {
+    document.getElementById('total-earnings').textContent = `${totalEarnings.toFixed(2)} RM`;
+    document.getElementById('total-transactions').textContent = transactionCount;
+
+    const earningsList = document.getElementById('earnings-list');
+    
+    if (transactionHistory.length === 0) {
+      earningsList.innerHTML = '<div style="color: var(--text-sub); font-size: 0.9rem; text-align: center; padding: 20px 0;">No transactions yet</div>';
+      return;
+    }
+
+    earningsList.innerHTML = transactionHistory.slice().reverse().map(txn => `
+      <div style="
+        background: var(--input-bg);
+        padding: 12px;
+        border-radius: 8px;
+        border-left: 3px solid ${txn.type === 'parking' ? '#4CAF50' : 'var(--accent)'};
+      ">
+        <div style="display: flex; justify-content: space-between; align-items: start;">
+          <div>
+            <div style="font-weight: 600; color: var(--text); font-size: 0.9rem;">${txn.description}</div>
+            <div style="font-size: 0.75rem; color: var(--text-sub); margin-top: 4px;">${txn.timestamp}</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="color: #4CAF50; font-weight: 600;">+${txn.commission.toFixed(2)} RM</div>
+            <div style="font-size: 0.75rem; color: var(--text-sub);">from ${txn.amount.toFixed(2)} RM</div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Earnings button toggle
+  const earningsBtn = document.getElementById('earnings-btn');
+  const earningsSection = document.getElementById('earnings-section');
+
+  earningsBtn.addEventListener('click', () => {
+    if (!isAdmin) {
+      showToast('🔒 Admin access required (Ctrl+Shift+A)');
+      return;
+    }
+    const isVisible = earningsSection.style.display === 'block';
+    earningsSection.style.display = isVisible ? 'none' : 'block';
+    feedContainer.style.display = isVisible ? 'block' : 'none';
+  });
+
+  // Withdraw earnings
+  document.getElementById('withdraw-btn').addEventListener('click', () => {
+    if (totalEarnings < 10) {
+      showToast('Minimum withdrawal is 10 RM');
+      return;
+    }
+
+    const withdrawModal = document.createElement('div');
+    withdrawModal.style.cssText = `
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    `;
+
+    withdrawModal.innerHTML = `
+      <div style="
+        background: var(--card);
+        border-radius: 16px;
+        padding: 24px;
+        max-width: 320px;
+        width: 90%;
+      ">
+        <h3 style="color: var(--text); margin-bottom: 16px; text-align: center;">💸 Withdraw Earnings</h3>
+        
+        <div style="
+          background: var(--input-bg);
+          padding: 14px;
+          border-radius: 10px;
+          margin-bottom: 16px;
+          text-align: center;
+        ">
+          <div style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 6px;">Available Balance</div>
+          <div style="font-size: 1.6rem; font-weight: 600; color: #4CAF50;">${totalEarnings.toFixed(2)} RM</div>
+        </div>
+
+        <input type="text" id="withdraw-account" placeholder="Bank Account / E-wallet" style="
+          width: 100%;
+          padding: 12px;
+          border-radius: 10px;
+          border: 1px solid var(--input-border);
+          background: var(--input-bg);
+          color: var(--text);
+          margin-bottom: 12px;
+          box-sizing: border-box;
+        ">
+
+        <button id="confirm-withdraw" style="
+          width: 100%;
+          padding: 12px;
+          background: #4CAF50;
+          color: white;
+          border: none;
+          border-radius: 10px;
+          font-weight: 600;
+          cursor: pointer;
+          margin-bottom: 8px;
+        ">
+          Withdraw ${totalEarnings.toFixed(2)} RM
+        </button>
+
+        <button id="cancel-withdraw" style="
+          width: 100%;
+          padding: 12px;
+          background: var(--input-bg);
+          color: var(--text);
+          border: 1px solid var(--input-border);
+          border-radius: 10px;
+          font-weight: 600;
+          cursor: pointer;
+        ">
+          Cancel
+        </button>
+      </div>
+    `;
+
+    document.body.appendChild(withdrawModal);
+
+    document.getElementById('confirm-withdraw').addEventListener('click', () => {
+      const account = document.getElementById('withdraw-account').value.trim();
+      if (!account) {
+        showToast('Please enter bank account or e-wallet');
+        return;
+      }
+
+      // Simulate withdrawal
+      showToast('Processing withdrawal...');
+      setTimeout(() => {
+        withdrawModal.remove();
+        showToast(`✅ ${totalEarnings.toFixed(2)} RM withdrawn to ${account}`);
+        totalEarnings = 0;
+        updateEarningsDisplay();
+      }, 1500);
+    });
+
+    document.getElementById('cancel-withdraw').addEventListener('click', () => {
+      withdrawModal.remove();
+    });
+  });
+
+  // ===== FLEXI PAYMENT INTEGRATION =====
+  
+  function openFlexiPaymentOptions() {
+    document.getElementById('flexiPaymentOptions').style.display = 'flex';
+  }
+
+  function closeFlexiPaymentOptions() {
+    document.getElementById('flexiPaymentOptions').style.display = 'none';
+  }
+
+  function payWithFlexiAPI() {
+    const district = document.getElementById('parking-district').value;
+    const location = document.getElementById('parking-location').value;
+    const hours = document.getElementById('parking-hours').value;
+    
+    if (!district || !location || !hours) {
+      showNotif('Please fill in all parking details');
+      return;
+    }
+
+    const amount = calculateActualParkingCost();
+    const commission = (amount * 0.05).toFixed(2); // 5% commission
+    
+    showNotif('Processing Flexi Payment...');
+    
+    setTimeout(() => {
+      const transactionId = 'FLX-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+      
+      document.getElementById('parking-status').innerHTML = `
+        <div style="background: #e8f5e9; border: 1px solid #4caf50; border-radius: 8px; padding: 12px; color: #2e7d32; margin-top: 12px;">
+          <div style="font-weight: 600; margin-bottom: 6px;">✅ Payment Successful!</div>
+          <div style="font-size: 0.8rem; margin-bottom: 4px;">Transaction ID: ${transactionId}</div>
+          <div style="font-size: 0.8rem; margin-bottom: 4px;">Location: ${location}</div>
+          <div style="font-size: 0.8rem; margin-bottom: 4px;">Duration: ${hours} hour(s)</div>
+          <div style="font-size: 0.8rem; margin-bottom: 4px;">Amount Paid: RM ${amount.toFixed(2)}</div>
+          <div style="font-size: 0.8rem; margin-bottom: 4px; padding-top: 6px; border-top: 1px solid #81c784;">
+            💰 Cari-Cari Commission Earned: <strong>RM ${commission}</strong> (5%)
+          </div>
+        </div>
+      `;
+      
+      closeFlexiPaymentOptions();
+      document.getElementById('parking-location').value = '';
+      document.getElementById('parking-hours').value = '1';
+    }, 1500);
+  }
+
+  function payWithFlexiReferral() {
+    const location = document.getElementById('parking-location').value;
+    const hours = document.getElementById('parking-hours').value;
+    const amount = calculateActualParkingCost();
+    
+    if (!location || !hours) {
+      showNotif('Please fill in parking details first');
+      return;
+    }
+
+    const flexiReferralLink = 'https://flexi.my/ref/CARIECARI2024';
+    
+    showNotif('Opening Flexi Payment app...');
+    
+    setTimeout(() => {
+      document.getElementById('parking-status').innerHTML = `
+        <div style="background: #fff3e0; border: 1px solid #ff9800; border-radius: 8px; padding: 12px; color: #e65100; margin-top: 12px;">
+          <div style="font-weight: 600; margin-bottom: 8px;">📱 Flexi Payment</div>
+          <div style="font-size: 0.85rem; margin-bottom: 8px; background: white; padding: 8px; border-radius: 6px; color: #333;">
+            <div>📍 Location: ${location}</div>
+            <div>⏱️ Duration: ${hours} hour(s)</div>
+            <div style="font-weight: 600; color: #ff9800; margin-top: 4px;">Amount: RM ${amount.toFixed(2)}</div>
+          </div>
+          <div style="font-size: 0.8rem; margin-bottom: 8px;">Click the button below to open Flexi Payment app:</div>
+          <a href="${flexiReferralLink}" target="_blank" style="display: inline-block; padding: 10px 16px; background: #ff9800; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem;">
+            🔗 Open Flexi Payment
+          </a>
+          <div style="font-size: 0.75rem; margin-top: 8px; padding-top: 8px; border-top: 1px solid #ffe0b2;">
+            ✓ We earn 2-3% commission when you use our referral link!
+          </div>
+        </div>
+      `;
+      closeFlexiPaymentOptions();
+    }, 800);
+  }
+
+  function calculateActualParkingCost() {
+    const district = document.getElementById('parking-district').value;
+    const hours = parseInt(document.getElementById('parking-hours').value) || 1;
+    const rates = {
+      'kk': 1.50,
+      'sandakan': 1.00,
+      'tawau': 1.00,
+      'lahad-datu': 0.80,
+      'semporna': 0.80,
+      'kunak': 0.80,
+      'keningau': 1.00,
+      'tenom': 0.80,
+      'papar': 0.80,
+      'kota-belud': 0.80,
+      'ranau': 0.80,
+      'kundasang': 0.80
+    };
+    return (rates[district] || 1.00) * hours;
+  }
+
+  // ===== BUY CREDITS FUNCTIONS =====
+  
+  let selectedCreditPackage = null;
+
+  function openBuyCreditsModal() {
+    document.getElementById('buyCreditsModal').style.display = 'flex';
+  }
+
+  function closeBuyCreditsModal() {
+    document.getElementById('buyCreditsModal').style.display = 'none';
+    selectedCreditPackage = null;
+    document.getElementById('selectedPackageInfo').style.display = 'none';
+    document.getElementById('buyCreditsBtn').disabled = true;
+    document.getElementById('buyCreditsBtn').textContent = 'Select a package first';
+  }
+
+  function selectCreditPackage(element, price, credits) {
+    // Remove selected state from all packages
+    document.querySelectorAll('.creditPackage').forEach(pkg => {
+      pkg.style.borderColor = 'var(--input-border)';
+      pkg.style.backgroundColor = 'var(--input-bg)';
+    });
+
+    // Add selected state to clicked package
+    element.style.borderColor = 'var(--accent)';
+    element.style.backgroundColor = 'rgba(255, 212, 0, 0.1)';
+
+    // Update selection info
+    selectedCreditPackage = { price, credits };
+    const ratePerCredit = (price / credits).toFixed(2);
+
+    document.getElementById('selectedPackageInfo').style.display = 'block';
+    document.getElementById('selectedCredits').textContent = credits + ' Credits';
+    document.getElementById('selectedPrice').textContent = 'RM ' + price;
+    document.getElementById('selectedRate').textContent = 'RM ' + ratePerCredit;
+
+    document.getElementById('buyCreditsBtn').disabled = false;
+    document.getElementById('buyCreditsBtn').textContent = '✓ Proceed to Payment (RM ' + price + ')';
+  }
+
+  function buyCreditsWithCard() {
+    if (!selectedCreditPackage) {
+      showNotif('Please select a package first');
+      return;
+    }
+
+    const { price, credits } = selectedCreditPackage;
+    showNotif('Processing credit card payment...');
+
+    setTimeout(() => {
+      completePayment(credits, price, 'Credit Card');
+    }, 1500);
+  }
+
+  function buyCreditsWithFPX() {
+    if (!selectedCreditPackage) {
+      showNotif('Please select a package first');
+      return;
+    }
+
+    const { price, credits } = selectedCreditPackage;
+    showNotif('Redirecting to FPX Banking...');
+
+    setTimeout(() => {
+      completePayment(credits, price, 'FPX Banking');
+    }, 1500);
+  }
+
+  function buyCreditsWithTouchNGo() {
+    if (!selectedCreditPackage) {
+      showNotif('Please select a package first');
+      return;
+    }
+
+    const { price, credits } = selectedCreditPackage;
+    showNotif('Processing Touch n Go payment...');
+
+    setTimeout(() => {
+      completePayment(credits, price, 'Touch n Go');
+    }, 1500);
+  }
+
+  function buyCreditsWithFlexi() {
+    if (!selectedCreditPackage) {
+      showNotif('Please select a package first');
+      return;
+    }
+
+    const { price, credits } = selectedCreditPackage;
+    showNotif('Redirecting to Flexi Payment...');
+
+    setTimeout(() => {
+      completePayment(credits, price, 'Flexi Payment');
+    }, 1500);
+  }
+
+  function completeCreditPurchase() {
+    if (!selectedCreditPackage) {
+      showNotif('Please select a package first');
+      return;
+    }
+
+    const { price, credits } = selectedCreditPackage;
+    
+    // Show a selection of payment methods
+    const paymentMethods = `
+      Which payment method would you like to use?
+      
+      1. Credit/Debit Card
+      2. FPX Banking
+      3. Touch n Go
+      4. Flexi Payment
+    `;
+    
+    showNotif('Choose a payment method above');
+  }
+
+  function completePayment(credits, price, paymentMethod) {
+    // Update credits
+    let currentCredits = parseInt(document.getElementById('creditsDisplay').textContent.match(/\d+/)[0]);
+    currentCredits += credits;
+    document.getElementById('creditsDisplay').innerHTML = '💾 ' + currentCredits + ' credits';
+
+    // Show success message
+    const transactionId = 'TXN-' + Date.now();
+    
+    const successModal = document.createElement('div');
+    successModal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 3000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    `;
+
+    successModal.innerHTML = `
+      <div style="
+        background: var(--card);
+        border-radius: 16px;
+        padding: 24px;
+        text-align: center;
+        max-width: 300px;
+        border: 1px solid var(--card-border);
+      ">
+        <div style="font-size: 2.5rem; margin-bottom: 16px;">✅</div>
+        <h2 style="margin: 0 0 12px 0; color: var(--accent);">Purchase Successful!</h2>
+        
+        <div style="background: var(--input-bg); padding: 12px; border-radius: 10px; margin-bottom: 16px; text-align: left; font-size: 0.85rem;">
+          <div style="margin-bottom: 6px;">📱 Payment Method: <strong>${paymentMethod}</strong></div>
+          <div style="margin-bottom: 6px;">💳 Amount: <strong>RM ${price}</strong></div>
+          <div style="margin-bottom: 6px;">💾 Credits Received: <strong>${credits}</strong></div>
+          <div style="margin-bottom: 6px;">📝 Transaction ID: <strong>${transactionId}</strong></div>
+          <div style="color: #999; font-size: 0.75rem; margin-top: 8px;">
+            ✓ Credits added to your account instantly
+          </div>
+        </div>
+
+        <button onclick="this.parentElement.parentElement.remove(); closeBuyCreditsModal();" style="
+          width: 100%;
+          padding: 12px;
+          background: var(--accent);
+          color: var(--accent-text);
+          border: none;
+          border-radius: 8px;
+          font-weight: 600;
+          cursor: pointer;
+          font-size: 0.95rem;
+        ">Done</button>
+      </div>
+    `;
+
+    document.body.appendChild(successModal);
+
+    // Close modal after showing success
+    setTimeout(() => {
+      closeBuyCreditsModal();
+    }, 2000);
+  }
+
+  // ===== PARKING PAYMENT INTEGRATION =====
+  
+  // Parking rates by district (RM per hour)
+  const parkingRates = {
+    kk: { name: 'Kota Kinabalu (DBKK)', ratePerHour: 1.5 },
+    sandakan: { name: 'Sandakan City Council', ratePerHour: 1.0 },
+    tawau: { name: 'Tawau City Council', ratePerHour: 1.0 },
+    'lahad-datu': { name: 'Lahad Datu District', ratePerHour: 0.8 },
+    semporna: { name: 'Semporna District', ratePerHour: 0.8 },
+    kunak: { name: 'Kunak District', ratePerHour: 0.8 },
+    keningau: { name: 'Keningau District', ratePerHour: 1.0 },
+    tenom: { name: 'Tenom District', ratePerHour: 0.8 },
+    papar: { name: 'Papar District', ratePerHour: 0.8 },
+    'kota-belud': { name: 'Kota Belud District', ratePerHour: 0.8 },
+    ranau: { name: 'Ranau District', ratePerHour: 0.8 },
+    kundasang: { name: 'Kundasang District', ratePerHour: 0.8 }
+  };
+
+  const parkingBtn = document.getElementById('parking-btn');
+  const parkingSection = document.getElementById('parking-section');
+  const feedContainer = document.getElementById('feed-container');
+
+  parkingBtn.addEventListener('click', () => {
+    const isVisible = parkingSection.style.display === 'block';
+    parkingSection.style.display = isVisible ? 'none' : 'block';
+    feedContainer.style.display = isVisible ? 'block' : 'none';
+  });
+
+  // Parking calculation
+  document.getElementById('calc-parking-btn').addEventListener('click', () => {
+    const district = document.getElementById('parking-district').value;
+    const hours = parseInt(document.getElementById('parking-hours').value) || 1;
+
+    if (!district) {
+      showToast('Please select a district');
+      return;
+    }
+
+    const rate = parkingRates[district];
+    const totalCost = rate.ratePerHour * hours;
+
+    const costDisplay = document.getElementById('parking-cost-display');
+    const amountDisplay = document.getElementById('parking-amount');
+
+    amountDisplay.textContent = `${totalCost.toFixed(2)} RM`;
+    costDisplay.style.display = 'block';
+
+    // Store for payment
+    costDisplay.dataset.cost = totalCost;
+    costDisplay.dataset.district = district;
+    costDisplay.dataset.hours = hours;
+  });
+
+  // Sabah Pay integration
+  document.getElementById('pay-parking-btn').addEventListener('click', () => {
+    const district = document.getElementById('parking-district').value;
+    const location = document.getElementById('parking-location').value;
+    const costDisplay = document.getElementById('parking-cost-display');
+    const cost = costDisplay.dataset.cost;
+
+    if (!district) {
+      showToast('Please select a district');
+      return;
+    }
+
+    if (!location) {
+      showToast('Please enter parking location/zone');
+      return;
+    }
+
+    if (!cost) {
+      showToast('Please calculate parking fee first');
+      return;
+    }
+
+    // Sabah Pay integration - would connect to actual API
+    // This is a demo integration showing the payment intent
+    const sabahPayData = {
+      amount: parseFloat(cost),
+      currency: 'MYR',
+      orderId: `PARKING-${Date.now()}`,
+      description: `Parking Payment - ${parkingRates[district].name} - ${location}`,
+      district: district,
+      location: location,
+      timestamp: new Date().toISOString()
+    };
+
+    // Show payment confirmation modal
+    const paymentModal = document.createElement('div');
+    paymentModal.style.cssText = `
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    `;
+
+    paymentModal.innerHTML = `
+      <div style="
+        background: var(--card);
+        border-radius: 16px;
+        padding: 24px;
+        max-width: 320px;
+        width: 90%;
+      ">
+        <h3 style="color: var(--text); margin-bottom: 16px; text-align: center;">💳 Sabah Pay Confirmation</h3>
+        
+        <div style="
+          background: var(--input-bg);
+          padding: 12px;
+          border-radius: 10px;
+          margin-bottom: 16px;
+          font-size: 0.85rem;
+          color: var(--text-sub);
+        ">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span>District:</span>
+            <strong style="color: var(--text);">${parkingRates[district].name}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span>Location:</span>
+            <strong style="color: var(--text);">${location}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--input-border); padding-top: 8px;">
+            <span>Amount:</span>
+            <strong style="color: var(--accent); font-size: 1rem;">${parseFloat(cost).toFixed(2)} RM</strong>
+          </div>
+        </div>
+
+        <button id="confirm-sabah-pay" style="
+          width: 100%;
+          padding: 12px;
+          background: #4CAF50;
+          color: white;
+          border: none;
+          border-radius: 10px;
+          font-weight: 600;
+          cursor: pointer;
+          margin-bottom: 8px;
+        ">
+          ✓ Proceed to Sabah Pay
+        </button>
+
+        <button id="cancel-payment" style="
+          width: 100%;
+          padding: 12px;
+          background: var(--input-bg);
+          color: var(--text);
+          border: 1px solid var(--input-border);
+          border-radius: 10px;
+          font-weight: 600;
+          cursor: pointer;
+        ">
+          Cancel
+        </button>
+      </div>
+    `;
+
+    document.body.appendChild(paymentModal);
+
+    document.getElementById('confirm-sabah-pay').addEventListener('click', () => {
+      // Integration point: Call actual Sabah Pay API
+      // Example: window.location.href = `https://sabahpay.api.endpoint?amount=${cost}&orderId=${sabahPayData.orderId}`;
+
+      showToast('🔄 Redirecting to Sabah Pay...');
+      console.log('Sabah Pay Transaction:', sabahPayData);
+
+      // Record earnings
+      const txn = addTransaction('parking', parseFloat(cost), `Parking - ${parkingRates[district].name}`);
+      showToast(`💰 You earned ${txn.commission.toFixed(2)} RM commission!`);
+
+      // Simulate successful payment after 2 seconds
+      setTimeout(() => {
+        paymentModal.remove();
+        
+        const successModal = document.createElement('div');
+        successModal.style.cssText = `
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: rgba(0,0,0,0.7);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 2000;
+        `;
+
+        successModal.innerHTML = `
+          <div style="
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 320px;
+            width: 90%;
+            text-align: center;
+          ">
+            <div style="font-size: 2.5rem; margin-bottom: 12px;">✅</div>
+            <h3 style="color: var(--text); margin-bottom: 8px;">Payment Successful</h3>
+            <p style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 16px;">
+              Your parking payment of <strong style="color: var(--accent);">${parseFloat(cost).toFixed(2)} RM</strong> has been processed.
+            </p>
+            <div style="
+              background: var(--input-bg);
+              padding: 10px;
+              border-radius: 8px;
+              margin-bottom: 16px;
+              font-size: 0.8rem;
+            ">
+              <div style="color: var(--text-sub);">Transaction ID</div>
+              <div style="color: var(--text); font-weight: 600; word-break: break-all;">${sabahPayData.orderId}</div>
+            </div>
+            <button id="close-success" style="
+              width: 100%;
+              padding: 12px;
+              background: var(--accent);
+              color: var(--accent-text);
+              border: none;
+              border-radius: 10px;
+              font-weight: 600;
+              cursor: pointer;
+            ">
+              Done
+            </button>
+          </div>
+        `;
+
+        document.body.appendChild(successModal);
+
+        document.getElementById('close-success').addEventListener('click', () => {
+          successModal.remove();
+          parkingSection.style.display = 'none';
+          feedContainer.style.display = 'block';
+          // Reset parking form
+          document.getElementById('parking-district').value = '';
+          document.getElementById('parking-location').value = '';
+          document.getElementById('parking-hours').value = '1';
+          document.getElementById('parking-cost-display').style.display = 'none';
+        });
+      }, 2000);
+    });
+
+    document.getElementById('cancel-payment').addEventListener('click', () => {
+      paymentModal.remove();
+    });
+  });
+  const hiwBox = document.querySelector('.how-it-works');
+  const hiwChevron = document.querySelector('.hiw-chevron');
+  const hiwBody = document.querySelector('.hiw-body');
+
+  hiwBox.addEventListener('click', () => {
+    hiwBody.classList.toggle('open');
+    hiwChevron.classList.toggle('open');
+  });
+
+  // ===== ADVERTISEMENT PHOTO UPLOAD FUNCTIONS =====
+  
+  let mainPhotoData = null;
+  let additionalPhotosData = {};
+
+  function handleMainPhoto(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      mainPhotoData = e.target.result;
+      
+      const preview = document.getElementById('mainPhotoPreview');
+      const img = document.getElementById('mainPhotoImg');
+      
+      img.src = mainPhotoData;
+      preview.style.display = 'block';
+      
+      // Update drop zone appearance
+      document.getElementById('mainPhotoDropZone').style.borderColor = 'var(--accent)';
+      document.getElementById('mainPhotoDropZone').style.background = 'rgba(255, 212, 0, 0.1)';
+      
+      showNotif('Main photo added! ✅');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function removeMainPhoto() {
+    mainPhotoData = null;
+    document.getElementById('mainPhotoInput').value = '';
+    document.getElementById('mainPhotoPreview').style.display = 'none';
+    document.getElementById('mainPhotoDropZone').style.borderColor = 'var(--input-border)';
+    document.getElementById('mainPhotoDropZone').style.background = 'var(--input-bg)';
+    showNotif('Main photo removed');
+  }
+
+  function handleAdditionalPhoto(event, photoNumber) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      additionalPhotosData[photoNumber] = e.target.result;
+      renderAdditionalPhotos();
+      showNotif(`Photo ${photoNumber} added! ✅`);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function renderAdditionalPhotos() {
+    const container = document.getElementById('additionalPhotosPreview');
+    container.innerHTML = '';
+
+    Object.keys(additionalPhotosData).forEach(photoNumber => {
+      const photoContainer = document.createElement('div');
+      photoContainer.style.position = 'relative';
+      photoContainer.style.borderRadius = '8px';
+      photoContainer.style.overflow = 'hidden';
+      
+      photoContainer.innerHTML = `
+        <img src="${additionalPhotosData[photoNumber]}" style="width: 100%; height: 100px; object-fit: cover;">
+        <button type="button" onclick="removeAdditionalPhoto(${photoNumber})" style="
+          position: absolute;
+          top: 4px;
+          right: 4px;
+          background: rgba(255, 0, 0, 0.8);
+          color: white;
+          border: none;
+          border-radius: 50%;
+          width: 24px;
+          height: 24px;
+          font-size: 0.8rem;
+          cursor: pointer;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        ">✕</button>
+      `;
+
+      container.appendChild(photoContainer);
+    });
+  }
+
+  function removeAdditionalPhoto(photoNumber) {
+    delete additionalPhotosData[photoNumber];
+    document.getElementById(`additionalPhoto${photoNumber}`).value = '';
+    renderAdditionalPhotos();
+    showNotif(`Photo ${photoNumber} removed`);
+  }
+
+  function submitAdvertisement() {
+    const name = document.getElementById('ad-name').value.trim();
+    const price = document.getElementById('price-input').value.trim();
+    const description = document.getElementById('ad-description').value.trim();
+    const selectedCategory = document.querySelector('.category-btn.selected')?.dataset.category || 'product';
+
+    if (!name) {
+      showNotif('Please enter item or business name');
+      return;
+    }
+
+    if (!description) {
+      showNotif('Please enter a description');
+      return;
+    }
+
+    if (!mainPhotoData) {
+      showNotif('Please upload a main shop/item photo');
+      return;
+    }
+
+    // Prepare ad data
+    const adData = {
+      name,
+      price: price || 'Contact for price',
+      description,
+      mainPhoto: mainPhotoData,
+      additionalPhotos: additionalPhotosData,
+      photoCount: 1 + Object.keys(additionalPhotosData).length,
+      category: selectedCategory,
+      timestamp: new Date().toLocaleString(),
+      id: 'AD-' + Date.now()
+    };
+
+    // Add to feed with photos
+    addFeedItem({
+      isAd: true,
+      name: name,
+      price: price ? `${price} RM` : 'Contact for price',
+      text: description,
+      category: selectedCategory,
+      mainPhoto: mainPhotoData,
+      additionalPhotos: additionalPhotosData,
+      boosted: false
+    });
+
+    // Show success
+    const successModal = document.createElement('div');
+    successModal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 3000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    `;
+
+    successModal.innerHTML = `
+      <div style="
+        background: var(--card);
+        border-radius: 16px;
+        padding: 24px;
+        text-align: center;
+        max-width: 320px;
+        border: 1px solid var(--card-border);
+      ">
+        <div style="font-size: 2.5rem; margin-bottom: 16px;">📢</div>
+        <h2 style="margin: 0 0 12px 0; color: var(--accent);">Advertisement Posted!</h2>
+        
+        <div style="background: var(--input-bg); padding: 12px; border-radius: 10px; margin-bottom: 16px; text-align: left; font-size: 0.85rem;">
+          <div style="margin-bottom: 6px;">📝 Name: <strong>${name}</strong></div>
+          <div style="margin-bottom: 6px;">💵 Price: <strong>${price || 'Contact for price'}</strong></div>
+          <div style="margin-bottom: 6px;">📸 Photos: <strong>${adData.photoCount} attached</strong></div>
+          <div style="margin-bottom: 6px;">⏱️ Posted: <strong>Just now</strong></div>
+          <div style="color: #999; font-size: 0.75rem; margin-top: 8px;">
+            ✓ Advertisement is live and visible to nearby users
+          </div>
+        </div>
+
+        <button onclick="this.parentElement.parentElement.remove(); resetAdvertisementForm();" style="
+          width: 100%;
+          padding: 12px;
+          background: var(--accent);
+          color: var(--accent-text);
+          border: none;
+          border-radius: 8px;
+          font-weight: 600;
+          cursor: pointer;
+          font-size: 0.95rem;
+        ">Done</button>
+      </div>
+    `;
+
+    document.body.appendChild(successModal);
+
+    console.log('Advertisement submitted:', adData);
+  }
+
+  function resetAdvertisementForm() {
+    document.getElementById('ad-name').value = '';
+    document.getElementById('price-input').value = '';
+    document.getElementById('ad-description').value = '';
+    document.getElementById('mainPhotoInput').value = '';
+    document.getElementById('additionalPhoto1').value = '';
+    document.getElementById('additionalPhoto2').value = '';
+    document.getElementById('additionalPhoto3').value = '';
+    document.getElementById('additionalPhoto4').value = '';
+    
+    mainPhotoData = null;
+    additionalPhotosData = {};
+    
+    document.getElementById('mainPhotoPreview').style.display = 'none';
+    document.getElementById('mainPhotoDropZone').style.borderColor = 'var(--input-border)';
+    document.getElementById('mainPhotoDropZone').style.background = 'var(--input-bg)';
+    document.getElementById('additionalPhotosPreview').innerHTML = '';
+  }
+
+  // ===== COMPOSER: Post vs Sell tabs =====
+  const postTab = document.querySelector('.post-tab');
+  const adTab = document.querySelector('.ad-tab');
+  const postFields = document.getElementById('post-fields');
+  const adFields = document.getElementById('ad-fields');
+
+  postTab.addEventListener('click', () => {
+    postTab.classList.add('active');
+    adTab.classList.remove('active');
+    postFields.style.display = 'block';
+    adFields.style.display = 'none';
+  });
+
+  adTab.addEventListener('click', () => {
+    adTab.classList.add('active');
+    postTab.classList.remove('active');
+    postFields.style.display = 'none';
+    adFields.style.display = 'block';
+  });
+
+  // ===== CATEGORY SELECTION =====
+  document.querySelectorAll('.category-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedCategory = btn.dataset.category;
+    });
+  });
+
+  // ===== LOCATION PICKER =====
+  let selectedCoords = null;
+  const locationBox = document.getElementById('location-box');
+  const mapModal = document.getElementById('map-modal');
+  let map = null;
+  let mapMarker = null;
+
+  locationBox.addEventListener('click', () => {
+    mapModal.classList.add('open');
+    setTimeout(() => {
+      if (!map) {
+        map = L.map('map-container').setView([3.1357, 101.6880], 12); // KL default
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap',
+          maxZoom: 19
+        }).addTo(map);
+        map.on('click', (e) => {
+          selectedCoords = e.latlng;
+          if (mapMarker) map.removeLayer(mapMarker);
+          mapMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+        });
+      }
+    }, 50);
+  });
+
+  document.getElementById('map-confirm-btn').addEventListener('click', () => {
+    if (selectedCoords) {
+      locationBox.textContent = `📍 Location pinned`;
+      locationBox.classList.add('set');
+      mapModal.classList.remove('open');
+    }
+  });
+
+  // ===== SALES LANGUAGE DETECTION =====
+  const postBtn = document.querySelector('#post-fields .post-btn');
+  const adPostBtn = document.querySelector('#ad-fields .post-btn');
+  const postCostNote = document.querySelector('#ad-fields .post-cost-note');
+  const salesPatterns = [
+    /\b(buy|sell|price|cost|discount|offer|deal|sale|cheap|expensive|payment|cash|card)\b/i,
+    /\$|\€|\£|₹|π/
+  ];
+
+  function checkSalesLanguage() {
+    const text = document.getElementById('text-post-input').value;
+    const warning = document.getElementById('sales-warning');
+    const flagged = salesPatterns.some(pattern => pattern.test(text));
+
+    if (flagged && text.trim().length > 0) {
+      warning.classList.add('show');
+      postBtn.disabled = true;
+    } else {
+      warning.classList.remove('show');
+      postBtn.disabled = false;
+    }
+  }
+
+  document.getElementById('text-post-input').addEventListener('input', checkSalesLanguage);
+
+  document.getElementById('sales-warning-switch').addEventListener('click', () => {
+    adTab.click();
+  });
+
+  // ===== TOAST HELPER =====
+  function showToast(message, duration = 3200) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), duration);
+  }
+
+  // ===== INLINE COMPOSER BOOST TOGGLE =====
+  let composerBoostOn = false;
+  let composerBoostCost = 0;
+  let composerBoostLabel = '';
+
+  const composerBoostToggleEl = document.getElementById('composer-boost-toggle');
+  const composerBoostSwitch = document.getElementById('composer-boost-switch');
+  const composerBoostTiers = document.getElementById('composer-boost-tiers');
+
+  composerBoostToggleEl.addEventListener('click', () => {
+    composerBoostOn = !composerBoostOn;
+    composerBoostSwitch.classList.toggle('on', composerBoostOn);
+    composerBoostToggleEl.classList.toggle('active', composerBoostOn);
+    composerBoostTiers.classList.toggle('open', composerBoostOn);
+    if (!composerBoostOn) {
+      composerBoostCost = 0;
+      composerBoostLabel = '';
+      document.querySelectorAll('.composer-boost-tier').forEach(t => t.classList.remove('selected'));
+    }
+    updatePostCostNote();
+  });
+
+  document.querySelectorAll('.composer-boost-tier').forEach(tier => {
+    tier.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.composer-boost-tier').forEach(t => t.classList.remove('selected'));
+      tier.classList.add('selected');
+      composerBoostCost = parseInt(tier.dataset.cost);
+      composerBoostLabel = tier.dataset.label;
+      updatePostCostNote();
+    });
+  });
+
+  function updatePostCostNote() {
+    const base = 5;
+    const total = base + (composerBoostOn ? composerBoostCost : 0);
+    postCostNote.textContent = composerBoostOn && composerBoostCost
+      ? `This will use ${total} credits (5 post + ${composerBoostCost} boost)`
+      : 'This will use 5 credits';
+  }
+
+  // ===== STATE =====
+  let myCredits = 250;
+  let activeBoostPostBtn = null;
+  let selectedBoostCost = null;
+  let selectedCategory = null;
+
+  function updateCreditsPill() {
+    document.querySelector('.credits-pill').textContent = `💾 ${myCredits} credits`;
+  }
+
+  // ===== FEED ITEM HELPERS =====
+  function wireCommentInput(inputRow) {
+    const input = inputRow.querySelector('input');
+    const sendBtn = inputRow.querySelector('.comment-send');
+    const commentSection = inputRow.closest('.comments-section');
+
+    sendBtn.addEventListener('click', () => {
+      const text = input.value.trim();
+      if (!text) return;
+
+      const comment = document.createElement('div');
+      comment.className = 'comment';
+      comment.innerHTML = `<div class="comment-name">You</div><div class="comment-text">${text}</div>`;
+      commentSection.insertBefore(comment, inputRow);
+      input.value = '';
+    });
+  }
+
+  function addBoostCarouselCard({ name, price, desc, location, boostLabel, category }) {
+    const carouselSection = document.getElementById('boosted-carousel-section');
+    const carouselContainer = document.getElementById('boosted-carousel');
+
+    // Show carousel section if hidden
+    if (carouselSection.style.display === 'none') {
+      carouselSection.style.display = 'block';
+    }
+
+    const card = document.createElement('div');
+    card.className = 'carousel-card';
+    card.innerHTML = `
+      <div class="carousel-card-header">
+        <div class="carousel-card-name">${name || 'Business'}</div>
+        <div class="carousel-card-tier">${boostLabel}</div>
+      </div>
+      ${price ? `<div class="carousel-card-price">${price} RM</div>` : ''}
+      ${desc ? `<div class="carousel-card-desc">${desc}</div>` : ''}
+      ${location ? `<div class="carousel-card-location">${location}</div>` : ''}
+      <div class="carousel-card-actions">
+        <button class="carousel-card-action carousel-contact">💬 Contact</button>
+        <button class="carousel-card-action carousel-directions">🧭 Directions</button>
+      </div>
+    `;
+
+    carouselContainer.appendChild(card);
+
+    // Wire up actions
+    card.querySelector('.carousel-contact').addEventListener('click', () => {
+      showToast(`Opened chat with ${name || 'seller'}`);
+    });
+
+    card.querySelector('.carousel-directions').addEventListener('click', () => {
+      showToast('Opening directions...');
+    });
+  }
+
+  // ===== POST BUTTON =====
+  let postBtnRef = document.querySelector('#post-fields .post-btn');
+  let adPostBtnRef = document.querySelector('#ad-fields .post-btn');
+
+  postBtnRef.addEventListener('click', () => {
+    const text = document.getElementById('text-post-input').value.trim();
+    if (!text) {
+      postCostNote.textContent = "Write something first";
+      postCostNote.style.color = '#e0455c';
+      return;
+    }
+
+    postCostNote.style.color = '';
+    showToast('✅ Posted — free, no credits used');
+
+    addFeedItem({ isAd: false, text: text });
+
+    document.getElementById('text-post-input').value = '';
+  });
+
+  adPostBtnRef.addEventListener('click', () => {
+    const isAdTab = adTab.classList.contains('active');
+    const adCost = 5;
+    const boostCost = (isAdTab && composerBoostOn) ? composerBoostCost : 0;
+    const totalCost = adCost + boostCost;
+
+    if (!selectedCategory) {
+      postCostNote.textContent = 'Select a category first';
+      postCostNote.style.color = '#e0455c';
+      return;
+    }
+
+    if (composerBoostOn && !composerBoostCost) {
+      postCostNote.textContent = 'Pick a boost duration, or turn boost off';
+      postCostNote.style.color = '#e0455c';
+      return;
+    }
+    if (myCredits < totalCost) {
+      postCostNote.textContent = `Not enough credits — you need ${totalCost}, you have ${myCredits}`;
+      postCostNote.style.color = '#e0455c';
+      return;
+    }
+
+    const itemName = document.querySelector('#ad-fields input[placeholder="Item or business name"]').value.trim();
+    const price = document.getElementById('price-input').value.trim();
+    const desc = document.querySelector('#ad-fields textarea').value.trim();
+    const locationBox = document.getElementById('location-box');
+    const hasLocation = locationBox.classList.contains('set');
+
+    if (!itemName && !desc) {
+      postCostNote.textContent = 'Add a business name or description first';
+      postCostNote.style.color = '#e0455c';
+      return;
+    }
+
+    myCredits -= totalCost;
+    updateCreditsPill();
+    postCostNote.style.color = '';
+
+    showToast(
+      boostCost
+        ? `✅ Ad posted & boosted (${composerBoostLabel}) — ${totalCost} credits used, ${myCredits} left`
+        : `✅ Ad posted — ${adCost} credits used, ${myCredits} left`
+    );
+
+    addFeedItem({
+      isAd: true,
+      name: itemName || 'Your business',
+      price: price,
+      text: desc || 'New advertisement',
+      location: hasLocation ? locationBox.textContent.replace('📍 Location pinned', '📍') : null,
+      boosted: boostCost > 0,
+      boostLabel: composerBoostLabel,
+      category: selectedCategory
+    });
+
+    if (boostCost > 0) {
+      addBoostCarouselCard({
+        name: itemName || 'Your business',
+        price: price,
+        desc: desc,
+        location: hasLocation ? locationBox.textContent.replace('📍 Location pinned', '📍') : null,
+        boostLabel: composerBoostLabel,
+        category: selectedCategory
+      });
+    }
+
+    // Reset ad form + category selection
+    document.querySelector('#ad-fields input[placeholder="Item or business name"]').value = '';
+    document.getElementById('price-input').value = '';
+    document.querySelector('#ad-fields textarea').value = '';
+    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+    selectedCategory = null;
+    composerBoostOn = false;
+    composerBoostCost = 0;
+    composerBoostSwitch.classList.remove('on');
+    composerBoostToggleEl.classList.remove('active');
+    composerBoostTiers.classList.remove('open');
+    document.querySelectorAll('.composer-boost-tier').forEach(t => t.classList.remove('selected'));
+
+    setTimeout(() => {
+      updatePostCostNote();
+    }, 500);
+  });
+
+  function addFeedItem({ isAd, name, price, text, location, boosted, boostLabel, category, mainPhoto, additionalPhotos }) {
+    const feedContainer = document.getElementById('feed-container');
+    const item = document.createElement('div');
+    item.className = 'feed-item just-posted' + (boosted ? ' is-boosted' : '');
+
+    if (isAd && location && selectedCoords) {
+      item.dataset.lat = selectedCoords.lat;
+      item.dataset.lng = selectedCoords.lng;
+    }
+
+    const badgeHtml = isAd
+      ? (boosted ? `<span class="feed-badge boosted">🚀 Boosted</span>` : `<span class="feed-badge">📢 Advertisement</span>`)
+      : '';
+    
+    const categoryEmoji = {
+      'eatery': '🍽️',
+      'services': '🔧',
+      'product': '📦',
+      'supermarket': '🏪'
+    }[category] || '🏢';
+    
+    const nameHtml = isAd ? (name || 'Your business') : 'You';
+    const priceHtml = isAd && price ? `<div class="feed-item-price">💰 ${price} RM</div>` : '';
+    const locationHtml = isAd && location ? `<div class="feed-location">📍 ${location}</div>` : '';
+    
+    // PHOTO DISPLAY FOR ADS
+    let photoHtml = '';
+    let additionalPhotoCount = additionalPhotos ? Object.keys(additionalPhotos).length : 0;
+    
+    if (isAd && mainPhoto) {
+      const allPhotos = [mainPhoto];
+      if (additionalPhotos) {
+        for (let i = 1; i <= 4; i++) {
+          if (additionalPhotos[i]) allPhotos.push(additionalPhotos[i]);
+        }
+      }
+      
+      photoHtml = `
+        <div class="feed-ad-photo-container" onclick="openAdPhotoGallery(this, event)">
+          <img src="${mainPhoto}" alt="Advertisement" class="feed-ad-main-photo" style="width: 100%; height: auto; border-radius: 10px; cursor: pointer;">
+          ${additionalPhotoCount > 0 ? `<div class="feed-ad-photo-badge">📸 +${additionalPhotoCount} more photos</div>` : ''}
+          <div class="feed-ad-photo-hint">👉 Tap to view gallery</div>
+        </div>
+        <div class="hidden-photo-gallery" data-all-photos="${encodeURIComponent(JSON.stringify(allPhotos))}" style="display: none;"></div>
+      `;
+    }
+    
+    const boostActionHtml = isAd
+      ? (boosted
+          ? `<span style="font-size:0.72rem; color:var(--text-sub); margin-left:auto;">Boosted · ${boostLabel}</span>`
+          : `<button class="action-btn boost-btn">🚀 Boost</button>`)
+      : '';
+    const directionsActionHtml = (isAd && location && selectedCoords)
+      ? `<button class="action-btn directions-btn" data-lat="${selectedCoords.lat}" data-lng="${selectedCoords.lng}">🧭 Directions</button>`
+      : '';
+    const saveActionHtml = isAd ? `<button class="action-btn save-btn">💾 Save</button>` : '';
+
+    item.innerHTML = `
+      <div class="feed-header">
+        <div class="avatar" style="background: linear-gradient(135deg, #FFD400, #FF8A00);">
+          ${categoryEmoji}
+        </div>
+        <div>
+          <div class="feed-user" style="font-weight: 600;">${nameHtml}</div>
+          <div class="feed-meta">${category ? categoryEmoji + ' ' + category : ''} • Just now</div>
+        </div>
+        ${badgeHtml}
+      </div>
+      ${photoHtml}
+      ${priceHtml}
+      <div class="feed-text" style="${isAd ? 'margin: 8px 0;' : ''}"></div>
+      ${locationHtml}
+      <div class="actions-row">
+        <button class="action-btn like-btn">❤️ 0</button>
+        <button class="action-btn comment-toggle">💬 0</button>
+        ${directionsActionHtml}
+        ${saveActionHtml}
+        ${boostActionHtml}
+      </div>
+      <div class="comments-section">
+        <div class="comment-input-row">
+          <input type="text" placeholder="${isAd ? 'Ask the seller...' : 'Write a comment...'}">
+          <button class="comment-send">Send</button>
+        </div>
+      </div>
+    `;
+
+    item.querySelector('.feed-text').textContent = text;
+
+    feedContainer.insertBefore(item, feedContainer.firstChild);
+    item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    item.querySelector('.comment-toggle').addEventListener('click', function() {
+      item.querySelector('.comments-section').classList.toggle('open');
+    });
+    wireCommentInput(item.querySelector('.comment-input-row'));
+
+    const newBoostBtn = item.querySelector('.boost-btn');
+    if (newBoostBtn) {
+      newBoostBtn.addEventListener('click', () => {
+        activeBoostPostBtn = newBoostBtn;
+        document.getElementById('boost-modal-overlay').classList.add('open');
+        document.querySelectorAll('#boost-modal-overlay .boost-tier').forEach(t => t.classList.remove('selected'));
+        selectedBoostCost = null;
+        document.getElementById('boost-confirm-btn').disabled = true;
+        document.getElementById('boost-confirm-btn').textContent = 'Select a duration';
+      });
+    }
+
+    const saveBtn = item.querySelector('.save-btn');
+    if (saveBtn) {
+      saveBtn.addEventListener('click', () => {
+        saveBtn.classList.toggle('saved');
+        saveBtn.textContent = saveBtn.classList.contains('saved') ? '✓ Saved' : '💾 Save';
+        showNotif(saveBtn.classList.contains('saved') ? 'Added to saved!' : 'Removed from saved');
+      });
+    }
+
+    const likeBtn = item.querySelector('.like-btn');
+    likeBtn.addEventListener('click', () => {
+      likeBtn.classList.toggle('reacted');
+      const count = parseInt(likeBtn.textContent.match(/\d+/)[0]) + (likeBtn.classList.contains('reacted') ? 1 : -1);
+      likeBtn.textContent = `❤️ ${count}`;
+    });
+  }
+
+  // Photo Gallery for Advertisements
+  function openAdPhotoGallery(element, event) {
+    event.stopPropagation();
+    const galleryData = element.nextElementSibling;
+    const allPhotos = JSON.parse(decodeURIComponent(galleryData.dataset.allPhotos));
+
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 2500;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    `;
+
+    let currentPhotoIndex = 0;
+
+    const content = `
+      <div style="
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      ">
+        <button onclick="this.parentElement.parentElement.remove()" style="
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+          border: none;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          font-size: 1.5rem;
+          cursor: pointer;
+          z-index: 10;
+        ">✕</button>
+
+        <img id="galleryMainImg" src="${allPhotos[0]}" style="
+          max-width: 100%;
+          max-height: 70%;
+          object-fit: contain;
+          border-radius: 8px;
+        ">
+
+        <div style="
+          position: absolute;
+          bottom: 40px;
+          color: white;
+          font-size: 0.9rem;
+          background: rgba(0, 0, 0, 0.5);
+          padding: 8px 12px;
+          border-radius: 20px;
+        ">
+          <span id="photoCounter">1</span>/<span id="photoTotal">${allPhotos.length}</span>
+        </div>
+
+        ${allPhotos.length > 1 ? `
+          <div style="
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 20px;
+            overflow-x: auto;
+          ">
+            ${allPhotos.map((photo, idx) => `
+              <img src="${photo}" style="
+                width: 50px;
+                height: 50px;
+                object-fit: cover;
+                border-radius: 6px;
+                border: ${idx === 0 ? '2px solid white' : '1px solid rgba(255,255,255,0.3)'};
+                cursor: pointer;
+                opacity: ${idx === 0 ? '1' : '0.6'};
+              " onclick="document.getElementById('galleryMainImg').src = '${photo}'; document.getElementById('photoCounter').textContent = '${idx + 1}'; document.querySelectorAll('[data-gallery-thumb]').forEach((t, i) => { t.style.border = i === ${idx} ? '2px solid white' : '1px solid rgba(255,255,255,0.3)'; t.style.opacity = i === ${idx} ? '1' : '0.6'; });" data-gallery-thumb>
+            `) || ''}
+          </div>
+        ` : ''}
+
+        ${allPhotos.length > 1 ? `
+          <button onclick="document.getElementById('galleryMainImg').src = '${allPhotos[(allPhotos.length + currentPhotoIndex - 1) % allPhotos.length]}'" style="
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+          ">❮</button>
+
+          <button onclick="document.getElementById('galleryMainImg').src = '${allPhotos[(currentPhotoIndex + 1) % allPhotos.length]}'" style="
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+          ">❯</button>
+        ` : ''}
+      </div>
+    `;
+
+    modal.innerHTML = content;
+    document.body.appendChild(modal);
+  }
+
+  // ===== BOOST MODAL TIERS =====
+  document.querySelectorAll('#boost-modal-overlay .boost-tier').forEach(tier => {
+    tier.addEventListener('click', () => {
+      document.querySelectorAll('#boost-modal-overlay .boost-tier').forEach(t => t.classList.remove('selected'));
+      tier.classList.add('selected');
+      selectedBoostCost = parseInt(tier.dataset.cost);
+      document.getElementById('boost-confirm-btn').disabled = false;
+      document.getElementById('boost-confirm-btn').textContent = `Boost for ${tier.dataset.label}`;
+    });
+  });
+
+  document.getElementById('boost-confirm-btn').addEventListener('click', () => {
+    if (!selectedBoostCost || !activeBoostPostBtn) return;
+
+    if (myCredits < selectedBoostCost) {
+      showToast('Not enough credits');
+      return;
+    }
+
+    myCredits -= selectedBoostCost;
+    updateCreditsPill();
+
+    activeBoostPostBtn.parentElement.innerHTML = `<span style="font-size:0.72rem; color:var(--text-sub);">Boosted</span>`;
+    showToast(`✅ Post boosted — ${selectedBoostCost} credits used`);
+
+    document.getElementById('boost-modal-overlay').classList.remove('open');
+  });
+
+  // ===== REACTIONS (delegated) =====
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('like-btn')) {
+      e.target.classList.toggle('reacted');
+      const count = parseInt(e.target.textContent.match(/\d+/)[0]) + (e.target.classList.contains('reacted') ? 1 : -1);
+      e.target.textContent = `🤍 React · ${count}`;
+    }
+
+    // ===== DIRECTIONS BUTTON =====
+    if (e.target.classList.contains('directions-btn')) {
+      const lat = parseFloat(e.target.dataset.lat);
+      const lng = parseFloat(e.target.dataset.lng);
+      const itemName = e.target.closest('.feed-item').querySelector('.feed-user').textContent;
+
+      if (userLocation && lat && lng) {
+        const distance = calculateDistance(userLocation.lat, userLocation.lng, lat, lng);
+        const distanceStr = formatDistance(distance);
+        showToast(`📍 ${itemName} is ${distanceStr} away. Opening directions...`);
+
+        // Create modal with Google Maps and Waze options
+        const directionsModal = document.createElement('div');
+        directionsModal.style.cssText = `
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: rgba(0,0,0,0.7);
+          display: flex;
+          align-items: flex-end;
+          z-index: 2000;
+        `;
+
+        directionsModal.innerHTML = `
+          <div style="
+            background: var(--card);
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+          ">
+            <h3 style="margin-bottom: 8px; color: var(--text);">Choose Navigation App</h3>
+            <button id="open-gmaps-btn" style="
+              width: 100%;
+              padding: 14px;
+              background: #4285F4;
+              color: white;
+              border: none;
+              border-radius: 10px;
+              font-weight: 600;
+              cursor: pointer;
+              font-size: 0.95rem;
+            ">
+              🗺️ Google Maps
+            </button>
+            <button id="open-waze-btn" style="
+              width: 100%;
+              padding: 14px;
+              background: #34C759;
+              color: white;
+              border: none;
+              border-radius: 10px;
+              font-weight: 600;
+              cursor: pointer;
+              font-size: 0.95rem;
+            ">
+              🛣️ Waze
+            </button>
+            <button id="close-directions-modal" style="
+              width: 100%;
+              padding: 12px;
+              background: var(--input-bg);
+              color: var(--text);
+              border: 1px solid var(--input-border);
+              border-radius: 10px;
+              font-weight: 600;
+              cursor: pointer;
+              margin-top: 4px;
+            ">
+              Cancel
+            </button>
+          </div>
+        `;
+
+        document.body.appendChild(directionsModal);
+
+        // Google Maps URL
+        document.getElementById('open-gmaps-btn').addEventListener('click', () => {
+          const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
+          window.open(mapsUrl, '_blank');
+          directionsModal.remove();
+        });
+
+        // Waze URL
+        document.getElementById('open-waze-btn').addEventListener('click', () => {
+          const wazeUrl = `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
+          window.open(wazeUrl, '_blank');
+          directionsModal.remove();
+        });
+
+        // Close modal
+        document.getElementById('close-directions-modal').addEventListener('click', () => {
+          directionsModal.remove();
+        });
+
+        // Close on background click
+        directionsModal.addEventListener('click', (evt) => {
+          if (evt.target === directionsModal) {
+            directionsModal.remove();
+          }
+        });
+      } else {
+        showToast('Could not get directions');
+      }
+    }
+  });
+
+  // ===== INIT: ADD SAMPLE FEED ITEMS =====
+  // Sample coordinates near Kuala Lumpur (within 2km of center: 3.1357, 101.6880)
+  
+  addFeedItem({
+    isAd: true,
+    name: 'Fresh Nasi Kuning',
+    price: '15',
+    text: 'Homemade nasi kuning available daily. Free delivery within 2km!',
+    location: '📍 Setapak',
+    boosted: true,
+    boostLabel: '1 day',
+    category: 'eatery'
+  });
+  // Store coordinates for nearby filtering (Setapak, ~1.5km from center)
+  document.querySelector('.feed-item').dataset.lat = 3.1150;
+  document.querySelector('.feed-item').dataset.lng = 101.7050;
+
+  // Add to boosted carousel
+  addBoostCarouselCard({
+    name: 'Fresh Nasi Kuning',
+    price: '15',
+    desc: 'Homemade nasi kuning available daily. Free delivery within 2km!',
+    location: '📍 Setapak',
+    boostLabel: '1 day',
+    category: 'eatery'
+  });
+
+  addFeedItem({
+    isAd: false,
+    text: 'Just tried the new cafeteria in Bangsar. Amazing coffee! ☕'
+  });
+
+  addFeedItem({
+    isAd: true,
+    name: 'Bike Repair Service',
+    price: 'From 50',
+    text: 'Professional bike maintenance & repairs. Trusted since 2018.',
+    location: '📍 Sentosa',
+    category: 'services'
+  });
+  // Sentosa coordinates (~1.2km from center)
+  const bikeItem = document.querySelectorAll('.feed-item')[2];
+  bikeItem.dataset.lat = 3.1450;
+  bikeItem.dataset.lng = 101.6750;
+
+  // Add more sample boosted cards
+  addBoostCarouselCard({
+    name: 'Organic Coffee Roastery',
+    price: '12-18',
+    desc: 'Single-origin specialty coffee. Daily brew & beans.',
+    location: '📍 Bangsar',
+    boostLabel: '3 days',
+    category: 'eatery'
+  });
+
+  addBoostCarouselCard({
+    name: 'Laptop Repair Pro',
+    price: 'From 80',
+    desc: 'Fast & reliable repairs. Same-day service available.',
+    location: '📍 Mid Valley',
+    boostLabel: '1 week',
+    category: 'services'
+  });
+
+  addBoostCarouselCard({
+    name: 'Personal Training',
+    price: '150/hr',
+    desc: 'Fitness coaching. In-gym or online sessions.',
+    location: '📍 Pavilion',
+    boostLabel: '3 hours',
+    category: 'services'
+  });
+
+  // Apply initial distance filter
+  filterFeedByDistance();
+</script>
+</body>
+</html>
