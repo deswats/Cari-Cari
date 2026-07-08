@@ -1574,6 +1574,10 @@
       <!-- BASIC DETAILS -->
       <input type="text" placeholder="Item or business name" id="ad-name">
       <input type="text" id="price-input" placeholder="Price (optional, e.g., 25 RM)">
+      <input type="tel" placeholder="WhatsApp Contact (e.g., 60123456789)" id="ad-phone" style="margin-bottom: 6px;">
+      <div style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 12px; padding: 8px; background: var(--input-bg); border-radius: 6px;">
+        📱 Your contact is hidden. Only shown when customers click 'Contact Seller'
+      </div>
       <textarea id="ad-description" placeholder="Describe your item or service..."></textarea>
 
       <!-- PHOTO UPLOADS -->
@@ -3907,6 +3911,7 @@
   function submitAdvertisement() {
     const name = document.getElementById('ad-name').value.trim();
     const price = document.getElementById('price-input').value.trim();
+    const phone = document.getElementById('ad-phone').value.trim();
     const description = document.getElementById('ad-description').value.trim();
     const selectedCategory = document.querySelector('.category-btn.selected')?.dataset.category || 'product';
 
@@ -3920,6 +3925,11 @@
       return;
     }
 
+    if (!phone) {
+      showNotif('Please enter your WhatsApp contact number');
+      return;
+    }
+
     if (!mainPhotoData) {
       showNotif('Please upload a main shop/item photo');
       return;
@@ -3929,6 +3939,7 @@
     const adData = {
       name,
       price: price || 'Contact for price',
+      phone: phone,
       description,
       mainPhoto: mainPhotoData,
       additionalPhotos: additionalPhotosData,
@@ -3947,6 +3958,7 @@
       category: selectedCategory,
       mainPhoto: mainPhotoData,
       additionalPhotos: additionalPhotosData,
+      phone: phone,
       boosted: false
     });
 
@@ -4009,6 +4021,7 @@
   function resetAdvertisementForm() {
     document.getElementById('ad-name').value = '';
     document.getElementById('price-input').value = '';
+    document.getElementById('ad-phone').value = '';
     document.getElementById('ad-description').value = '';
     document.getElementById('mainPhotoInput').value = '';
     document.getElementById('additionalPhoto1').value = '';
@@ -4336,7 +4349,7 @@
     }, 500);
   });
 
-  function addFeedItem({ isAd, name, price, text, location, boosted, boostLabel, category, mainPhoto, additionalPhotos }) {
+  function addFeedItem({ isAd, name, price, text, location, boosted, boostLabel, category, mainPhoto, additionalPhotos, phone }) {
     const feedContainer = document.getElementById('feed-container');
     const item = document.createElement('div');
     item.className = 'feed-item just-posted' + (boosted ? ' is-boosted' : '');
@@ -4392,6 +4405,9 @@
       ? `<button class="action-btn directions-btn" data-lat="${selectedCoords.lat}" data-lng="${selectedCoords.lng}">🧭 Directions</button>`
       : '';
     const saveActionHtml = isAd ? `<button class="action-btn save-btn">💾 Save</button>` : '';
+    const contactActionHtml = (isAd && phone)
+      ? `<button class="action-btn contact-btn" data-phone="${phone}">📱 Contact</button>`
+      : '';
 
     item.innerHTML = `
       <div class="feed-header">
@@ -4411,6 +4427,7 @@
       <div class="actions-row">
         <button class="action-btn like-btn">❤️ 0</button>
         <button class="action-btn comment-toggle">💬 0</button>
+        ${contactActionHtml}
         ${directionsActionHtml}
         ${saveActionHtml}
         ${boostActionHtml}
@@ -4442,6 +4459,14 @@
         selectedBoostCost = null;
         document.getElementById('boost-confirm-btn').disabled = true;
         document.getElementById('boost-confirm-btn').textContent = 'Select a duration';
+      });
+    }
+
+    const contactBtn = item.querySelector('.contact-btn');
+    if (contactBtn) {
+      contactBtn.addEventListener('click', () => {
+        const phone = contactBtn.dataset.phone;
+        contactSeller(phone);
       });
     }
 
@@ -4591,6 +4616,35 @@
 
     modal.innerHTML = content;
     document.body.appendChild(modal);
+  }
+
+  // ===== WHATSAPP CONTACT FUNCTION =====
+  function contactSeller(phone) {
+    if (!phone) {
+      showNotif('❌ Seller contact not available');
+      return;
+    }
+
+    // Clean phone number (remove any spaces/dashes)
+    let cleanPhone = phone.replace(/\D/g, '');
+    
+    // If phone doesn't start with country code, assume Malaysia (+60)
+    if (!cleanPhone.startsWith('60') && !cleanPhone.startsWith('+')) {
+      // Replace leading 0 with 60
+      if (cleanPhone.startsWith('0')) {
+        cleanPhone = '60' + cleanPhone.substring(1);
+      } else {
+        cleanPhone = '60' + cleanPhone;
+      }
+    }
+
+    // Create WhatsApp URL
+    const whatsappUrl = `https://wa.me/${cleanPhone}?text=Hi%2C%20I'm%20interested%20in%20your%20item%20on%20Cari-Cari.`;
+    
+    // Open WhatsApp
+    window.open(whatsappUrl, '_blank');
+    
+    showNotif('📱 Opening WhatsApp...');
   }
 
   // ===== BOOST MODAL TIERS =====
